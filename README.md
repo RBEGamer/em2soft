@@ -1,1 +1,24 @@
-em2soft
+# em2soft
+
+
+
+# ABOUT
+
+# COMPONENTS
+
+
+# HARDWARE PARTS USED
+
+
+
+# FOLDER STRUCTURE
+
+
+
+# PICTURES
+
+
+
+# DEMO VIDEO
+
+## TABLET INTERFACE

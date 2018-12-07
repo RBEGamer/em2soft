@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/ros/Desktop/em2soft/src/ros_workspace/devel/setup.sh
