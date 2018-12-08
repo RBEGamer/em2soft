@@ -8,7 +8,7 @@
 
 # SETUP
 You can find a `config.json` file in this directory to setup this tablet ui.
-#TODO
+* TODO
 
 # START
 First you have to download all NodeJS packages using npm.
@@ -32,4 +32,10 @@ Call `start_all.sh` in the `/src` directory.
 ## FIRST WebUI
 ![Gopher image](/documenation/pictures/tablet_ui_server/tablet_ui_server_v0.JPG)
 
+
+
 # TODO
+* -> complete ui design
+* -> test ui on tablet
+* -> create docker start file
+* ->add ros topics to config file
