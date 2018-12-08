@@ -4,14 +4,20 @@
 
 # ABOUT
 
-# COMPONENTS
+# HARDWARE COMPONENTS
+* NVIDIA TX2 - main control pc
+* WAGO PFC200 PLC 750-8202
+* WAGO 750-1605 24 V 24 IO OUTPUT
+
+todo weiter
 
 
-# HARDWARE PARTS USED
 
 
 
 # FOLDER STRUCTURE
+* `/src` - all source code. See README.md there
+* `/documenation` - pictures, docs,...
 
 
 
@@ -21,4 +27,4 @@
 
 # DEMO VIDEO
 
-## TABLET INTERFACE
+
