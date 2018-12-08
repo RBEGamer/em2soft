@@ -1,0 +1,6 @@
+{
+    "mode": "dev",
+    "target":"tx2",
+    "webserver_default_port":3345,
+    "mqtt_server":"mqtt://127.0.0.1"
+}

@@ -1,0 +1,269 @@
+<html>
+
+<head>
+
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>LC</title>
+
+
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/small-business.css" rel="stylesheet">
+
+
+
+    <style>
+        body {
+            background-color: rgb(44, 43, 43);
+        }
+
+        .my-sidebar {
+            -ms-flex: 0 0 800;
+            flex: 0 0 800;
+            background-color: greenyellow;
+        }
+
+        .gauge_text {
+    font-weight: 900;
+    color:aliceblue;
+    font-size: 1.6em; 
+}
+
+
+
+
+    </style>
+</head>
+
+<body>
+
+
+
+
+    <div class="container-fluid" style="max-width: 1280;">
+
+
+        <div class="row" style="border:2px solid white;">
+            <div class="col-md-2 col-md-offset-1">
+                &nbsp;
+            </div>
+            <div class="col-md-2 col-md-offset-1">
+                <img class="img-responsive" src="/img/zusi_icons/np_error.png" width="100" style="border:3px solid white;"
+                    id="img_alert" />
+            </div>
+            <div class="col-md-2">
+                <img class="img-responsive" src="/img/zusi_icons/np_error.png" width="100" style="border:3px solid white;"
+                    id="img_light"/>
+            </div>
+            <div class="col-md-2">
+                <img class="img-responsive" src="/img/zusi_icons/np_error.png" width="100" style="border:3px solid white;"
+                    id="img_motor" />
+            </div>
+
+            <div class="col-md-2 col-md-offset-1">
+                &nbsp;
+            </div>
+        </div>
+
+
+        <!-- Heading Row -->
+        <div class="row" style="border:2px solid white;">
+            <div class="col-md-6 col-md-offset-1" style="border:2px solid white;">
+                <canvas id="canvas1" width="600" height="300">
+                    Your browser does not support the canvas element.
+                </canvas>
+            </div>
+            <div class="col-md-6 col-md-offset-1" style="border:2px solid white;">
+                <canvas id="canvas2" width="600" height="300">
+                    Your browser does not support the canvas element.
+                </canvas>
+            </div>
+        </div>
+
+
+        <div class="row" style="border:2px solid white;">
+            <div class="col-md-6 col-md-offset-1 center-block text-center" style="border:2px solid white;">
+            <span class="gauge_text" id="gauge_kmh_text">0 KMH</span>
+            </div>
+            <div class="col-md-6 col-md-offset-1 center-block text-center" style="border:2px solid white;">
+                <span class="gauge_text" id="gauge_kn_text">0 KN</span>
+            </div>
+        </div>
+
+
+
+        <div class="row">
+
+
+            <div class="col-md-12 col-md-offset-1" style="border:2px solid white;" id="alert_box">
+                &nbsp;
+                <div class="alert alert-primary" role="alert" id="alert_box">
+                    NO MESSAGES AVARIABLE
+                </div>
+            </div>
+
+
+        </div>
+
+
+
+
+
+
+
+
+
+
+
+        <!-- Bootstrap core JavaScript -->
+        <script src="vendor/jquery/jquery.min.js"></script>
+        <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="js/204socket.io.js"></script>
+        <script src="js/gauge.js"></script>
+
+
+
+
+        <script>
+
+            //SET TO BG IMG_SIZE
+
+
+            var socket = null;
+            var audio_alert = new Audio('/slow-spring-board.ogg');
+            function show_alert(_msg, _is_err = false) {
+                if (!_is_err) {
+                    $("#alert_box").html("&nbsp; <div class='alert alert-primary' role='alert' id='alert_box'>" + _msg + "</div>");
+                } else {
+                    $("#alert_box").html("&nbsp; <div class='alert alert-danger' role='alert' id='alert_box'>" + _msg + "</div>");
+                }
+            }
+
+
+
+
+            function switch_image(_id, _state) {
+                var th = $("#img_" + _id);
+                if (th == null || _state == null || _id == null) {
+                    th.attr("src", "/img/zusi_icons/np_error.png");
+                    console.log("INVALID STATE IMAGE:" + _id + " s:" + _state)
+                    return;
+                }
+
+                th.attr("src", "/img/zusi_icons/" + String(_id) + "_" + String(_state) + ".png");
+            }
+
+var old_alert_msg = "";
+
+
+            function parse_state_data(_data) {
+
+                if (_data == null || _data.display == null) {
+                    show_alert("DATA STATE PARSING FAILED")
+                }
+                //SET STATUS ICONS
+                if (_data.display.alert != undefined && _data.display.alert != null) { switch_image("alert", _data.display.alert); } else { switch_image("alert", null); }
+                if (_data.display.light != undefined && _data.display.light != null) { switch_image("light", _data.display.light); } else { switch_image("light", null); }
+                if (_data.display.motor != undefined && _data.display.motor != null) { switch_image("motor", _data.display.motor); } else { switch_image("motor", null); }
+
+                //UPDATE GAUGES
+                if (_data.display.curr_kn != undefined && _data.display.curr_kn != null) {
+                    gauge_kn.set(_data.display.curr_kn); // set actual value
+                    $("#gauge_kn_text").html(String(_data.display.curr_kn) + "KN");
+                }
+                if (_data.display.curr_kmh != undefined && _data.display.curr_kmh != null) {
+                    gauge_kmh.set(_data.display.curr_kmh); // set actual value
+                    $("#gauge_kmh_text").html(String(_data.display.curr_kmh) + "KMH");
+                }
+
+                //UPDATE ALERT TEXT
+                if (_data.display.alert_msg != undefined && _data.display.alert_msg != null ) {
+                show_alert(_data.display.alert_msg,false);
+                if(old_alert_msg != _data.display.alert_msg && String(_data.display.alert_msg) != ""){ 
+                old_alert_msg = _data.display.alert_msg;
+                audio_alert.play();
+                setTimeout(() => {
+                    show_alert(_data.display.alert_msg, false);
+                    setTimeout(() => {
+                        show_alert(_data.display.alert_msg, true);
+                    }, 1000);
+                }, 1000);
+                }
+
+                } 
+            }
+
+            var opts_kmh = {
+                angle: 0, // The span of the gauge arc
+                lineWidth: 0.44, // The line thickness
+                radiusScale: 1, // Relative radius
+                pointer: {
+                    length: 0.5, // // Relative to gauge radius
+                    strokeWidth: 0.035, // The thickness
+                    color: '#000000' // Fill color
+                },
+                limitMax: true,     // If false, max value increases automatically if value > maxValue
+                limitMin: true,     // If true, the min value of the gauge will be fixed
+                colorStart: '#6FADCF',   // Colors
+                colorStop: '#8FC0DA',    // just experiment with them
+                strokeColor: '#E0E0E0',  // to see which ones work best for you
+                generateGradient: true,
+                highDpiSupport: true,     // High resolution support
+
+            };
+
+            var opts_kn = {
+                angle: 0, // The span of the gauge arc
+                lineWidth: 0.44, // The line thickness
+                radiusScale: 1, // Relative radius
+                pointer: {
+                    length: 0.5, // // Relative to gauge radius
+                    strokeWidth: 0.035, // The thickness
+                    color: '#000000' // Fill color
+                },
+                limitMax: true,     // If false, max value increases automatically if value > maxValue
+                limitMin: true,     // If true, the min value of the gauge will be fixed
+                colorStart: '#E0E0E0',   // Colors
+                colorStop: '#E0E0E0',    // just experiment with them
+                strokeColor: '#E0E0E0',  // to see which ones work best for you
+                generateGradient: true,
+                highDpiSupport: true,     // High resolution support
+
+            };
+            var target1 = document.getElementById('canvas2'); // your canvas element
+            var gauge_kn = new Gauge(target1).setOptions(opts_kn); // create sexy gauge!
+            gauge_kn.maxValue = 20; // set max gauge value
+            gauge_kn.setMinValue(-20);  // Prefer setter over gauge.minValue = 0
+            gauge_kn.animationSpeed = 32; // set animation speed (32 is default value)
+            gauge_kn.set(0); // set actual value
+
+            var target2 = document.getElementById('canvas1'); // your canvas element
+            var gauge_kmh = new Gauge(target2).setOptions(opts_kmh); // create sexy gauge!
+            gauge_kmh.maxValue = 15; // set max gauge value
+            gauge_kmh.setMinValue(0);  // Prefer setter over gauge.minValue = 0
+            gauge_kmh.animationSpeed = 32; // set animation speed (32 is default value)
+            gauge_kmh.set(0); // set actual value
+            //TODO SET KMH TEXT TO 0
+
+
+
+
+
+
+
+            $(document).ready(function () {
+                socket = io();
+                socket.on('broadcast', function (data) {
+                    if (data == null) { return; }
+                    //console.log(data);
+                    parse_state_data(data)
+                });
+            });
+        </script>
+
+</body>
+
+</html>
