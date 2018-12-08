@@ -1,0 +1,6 @@
+<launch>
+
+<node pkg="modbus_bridge" type="modbus_bridge_node" name="modbus_bridge_node_1" />
+
+
+</launch>
