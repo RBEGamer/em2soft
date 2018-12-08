@@ -33,7 +33,8 @@ Call `start_all.sh` in the `/src` directory.
 
 ## FIRST WebUI
 ![Gopher image](/documenation/pictures/tablet_ui_server/tablet_ui_server_v0.JPG)
-
+### DEMO VIDEO FROM FIRST WebUI WITH REALTIME SPEED SENSING
+[![VIDEO](https://img.youtube.com/vi/dz4WAVGvBJE/0.jpg)](https://www.youtube.com/watch?v=dz4WAVGvBJE)
 
 
 # TODO
