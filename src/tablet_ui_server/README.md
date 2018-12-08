@@ -5,6 +5,7 @@
 * simple NodeJS server with SocketIO Support
 * visulize different ROS topics to show all important loco information
 * !its only to show loco information and has no control functions!
+* provides speed, warnings, tempertures, lightstate, battery-mgmt
 
 # SETUP
 You can find a `config.json` file in this directory to setup this tablet ui.
