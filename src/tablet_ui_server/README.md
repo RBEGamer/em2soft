@@ -4,7 +4,7 @@
 # FEATURES
 * simple NodeJS server with SocketIO Support
 * visulize different ROS topics to show all important loco information
-
+* !its only to show loco information and has no control functions!
 
 # SETUP
 You can find a `config.json` file in this directory to setup this tablet ui.
@@ -25,5 +25,11 @@ Call `start_all.sh` in the `/src` directory.
 
 # PICTURES
 
+## THE CONZEPT LIKE FROM THE ZUSI SOFTWARE
+![Gopher image](/documenation/pictures/tablet_ui_server/tablet_ui_server_konzept.JPG)
+
+
+## FIRST WebUI
+![Gopher image](/documenation/pictures/tablet_ui_server/tablet_ui_server_v0.JPG)
 
 # TODO
