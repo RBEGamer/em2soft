@@ -1,15 +1,29 @@
-## USING THE REST API
+## EM2 TABLET UI
 
 
-* eine visualisierung aller state gibt es unter http://127.0.0.1:3000/
+# FEATURES
+* simple NodeJS server with SocketIO Support
+* visulize different ROS topics to show all important loco information
 
 
-* http://127.0.0.1:3000/rest/ventile listet alle ventile inkl states und IDs auf
-* http://127.0.0.1:3000/rest/__ID__/get_state gibt den aktuellen state zurück dabei 0 -> geschlossen 1-> geöffnet *
-* http://127.0.0.1:3000/rest/__ID__/get_info gibt alle informationen zum ventil an
+# SETUP
+You can find a `config.json` file in this directory to setup this tablet ui.
+#TODO
+
+# START
+First you have to download all NodeJS packages using npm.
+Run `npm install` in this directory to download them.
+
+To start the server you have to run a `roscore`, after a `roscore` is running simply start the server with `node server` in this directory.
+
+For easy setup you can find a startup script for the whole system.
+Call `start_all.sh` in the `/src` directory.
 
 
-* http://127.0.0.1:3000/rest/__ID__/set_state/__STATE__ setzt den status des ventils mit der ID dabei muss der state valide sein und in der valid_states vorkommen (in der regel 0 oder 1)
 
 
-* *beim uic ventil ist der state 0 = P, 1 = ??, 2 =???
+
+# PICTURES
+
+
+# TODO
