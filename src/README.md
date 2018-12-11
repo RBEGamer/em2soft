@@ -10,3 +10,4 @@ This folder contain all sourcefiles for the project.
 
 
 
+# TODO - how to startup
