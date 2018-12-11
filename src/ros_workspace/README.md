@@ -1,6 +1,9 @@
 # `./ros_workspace` - ROS PACKAGE
 
 
+# PACKAGES
+
+* `./src/modbus_bridge` - Modbus communication package 
 
 
 # ENABLE ROS ENVIRONMENT
