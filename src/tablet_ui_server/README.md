@@ -1,44 +1,15 @@
-## EM2 TABLET UI
+## USING THE REST API
 
 
-# FEATURES
-* simple NodeJS server with SocketIO Support
-* visulize different ROS topics to show all important loco information
-* !its only to show loco information and has no control functions!
-* provides speed, warnings, tempertures, lightstate, battery-mgmt
-
-# SETUP
-You can find a `config.json` file in this directory to setup this tablet ui.
-
-* `"webserver_default_port":<port>,` - defines the webserver port [DEFAULT 3345]
-
-# START
-First you have to download all NodeJS packages using npm.
-Run `npm install` in this directory to download them.
-
-To start the server you have to run a `roscore`, after a `roscore` is running simply start the server with `node server` in this directory.
-
-For easy setup you can find a startup script for the whole system.
-Call `start_all.sh` in the `/src` directory.
+* eine visualisierung aller state gibt es unter http://127.0.0.1:3000/
 
 
+* http://127.0.0.1:3000/rest/ventile listet alle ventile inkl states und IDs auf
+* http://127.0.0.1:3000/rest/__ID__/get_state gibt den aktuellen state zurück dabei 0 -> geschlossen 1-> geöffnet *
+* http://127.0.0.1:3000/rest/__ID__/get_info gibt alle informationen zum ventil an
 
 
-
-# PICTURES
-
-## THE CONZEPT LIKE FROM THE ZUSI SOFTWARE
-![Gopher image](/documenation/pictures/tablet_ui_server/tablet_ui_server_konzept.JPG)
+* http://127.0.0.1:3000/rest/__ID__/set_state/__STATE__ setzt den status des ventils mit der ID dabei muss der state valide sein und in der valid_states vorkommen (in der regel 0 oder 1)
 
 
-## FIRST WebUI
-![Gopher image](/documenation/pictures/tablet_ui_server/tablet_ui_server_v0.JPG)
-### DEMO VIDEO FROM FIRST WebUI WITH REALTIME SPEED SENSING
-[![VIDEO](https://img.youtube.com/vi/dz4WAVGvBJE/0.jpg)](https://www.youtube.com/watch?v=dz4WAVGvBJE)
-
-
-# TODO
-* -> complete ui design
-* -> test ui on tablet
-* -> create docker start file
-* ->add ros topics to config file
+* *beim uic ventil ist der state 0 = P, 1 = ??, 2 =???

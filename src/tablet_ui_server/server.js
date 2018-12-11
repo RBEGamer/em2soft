@@ -14,12 +14,23 @@ var config = require('./config.json');
 var uuidv1 = require('uuid/v1');
 var got = require('got');
 var mqtt = require('mqtt');
-var client = mqtt.connect(config.mqtt_server || 'mqtt://127.0.0.1');
+//var client = mqtt.connect(config.mqtt_server || 'mqtt://127.0.0.1');
 var fs = require('fs');
 
 
+
+
+const rosnodejs = require('rosnodejs');
+const std_msgs = rosnodejs.require('std_msgs').msg;
+
+
+
+
+
+
+
 //{"display":{"curr_kmh":0,"curr_kn":0,"alert":0,"motor":1,"light":0, "alert_msg":"12m3"}}
-var VERSION =0.2;
+var VERSION = 0.2;
 
 var port = process.env.PORT || config.webserver_default_port || 3000;
 
@@ -59,47 +70,75 @@ server.listen(port, function () {
 
 
 
-setInterval(() => {
-    client.publish("heartbeat_webui", String(Math.round(new Date().getTime() / 1000)));
-}, 1000);
+//setInterval(() => {
+//  client.publish("heartbeat_webui", String(Math.round(new Date().getTime() / 1000)));
+//}, 1000);
 
-client.on('connect', function () {
-    client.subscribe('status', function (err) {
-        if (!err) {
-           
-        }
+//client.on('connect', function () {
+//   client.subscribe('status', function (err) {
+//     if (!err) {
+
+//   }
+// });
+//});
+
+//client.on('message', function (topic, message) {
+// message is Buffer
+//  console.log(message.toString());
+
+//  var json = message;
+//  try
+//{
+//        json = JSON.parse(message);
+//}
+//catch(e)
+//{
+
+//}
+
+//  io.emit('broadcast', json);
+// io.emit('broadcast', {
+//   display: {
+//     alert: 0,
+//   motor: 1,
+// light: 1,
+
+//     curr_kn: 0,
+//   curr_kmh: 0
+
+//   }
+// });
+
+
+//})
+
+// Register node with ROS master
+rosnodejs.initNode('/tablet_node')
+    .then((rosNode) => {
+        // Create ROS subscriber on the 'chatter' topic expecting String messages
+        let sub = rosNode.subscribe('motorrealstats_node', std_msgs.String,
+            (data) => { // define callback execution
+                rosnodejs.log.info('broadcast I heard: [' + data.data + ']');
+
+                var json = data.data;
+                try {
+                    json = JSON.parse(data.data);
+                } catch (error) {
+
+                }
+                io.emit('broadcast', {
+                    display: {
+                        alert: 0,
+                        motor: 1,
+                        light: 1,
+                        curr_kn: 0,
+                        curr_kmh: json.rps
+                    }
+                });
+            }
+        );
     });
-});
 
-client.on('message', function (topic, message) {
-    // message is Buffer
-    console.log(message.toString());
-  
-    var json = message;
-    try
-{
-         json = JSON.parse(message);
-}
-catch(e)
-{
-      
-}
-
-    io.emit('broadcast', json);
-   // io.emit('broadcast', {
-     //   display: {
-       //     alert: 0,
-         //   motor: 1,
-           // light: 1,
-
-       //     curr_kn: 0,
-         //   curr_kmh: 0
-
-     //   }
-   // });
-
-
-})
 
 
 
@@ -125,10 +164,11 @@ io.on('connection', (socket) => {
 //TODO BUTTONS FÜR MANUELL SC_HALTEN EINBAUEN
 
 
-function RESET_ALL(){
+function RESET_ALL() {
     last_update = Math.round(new Date().getTime() / 1000);
 }
 RESET_ALL(); //AUSGANGSZUSTAND
+
 
 
 
