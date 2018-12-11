@@ -1,4 +1,4 @@
-# THE SOURCE OF ALL
+# `/src` FOLDER STRUCTURE
 
 
 This folder contain all sourcefiles for the project.
@@ -10,6 +10,3 @@ This folder contain all sourcefiles for the project.
 
 
 
-
-
-# START
