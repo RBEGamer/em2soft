@@ -33,6 +33,11 @@ The locomotive should automatically stop with its front as close to point B as p
 
 # ABOUT THE LOCO
 
+* weight 550kg
+* length 2180mm
+* height SOK: 925mm
+* width 600mm
+* track 10,25 inch
 
 
 
