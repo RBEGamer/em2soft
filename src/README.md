@@ -15,10 +15,10 @@ If you have all components together and connected you can setup the TX2-Board.
 * Install `Ubuntu 16.04` on a VM/PC and download the `Jetson` Installer for your TX2 board, from the `NVIDIA developer site`.
 * Flash the latest Jetson Image to board.
 
-
 * Install `ROS Kinectic`
 * Install `NodeJS >= V. 8`
 * Install `Python-Pip`
+For easy installation on a clean `Ubuntu 16.04` you can use the `./ubuntu_install_req.sh` script.
 
 
 * Clone this repository `git clone https://github.com/RBEGamer/em2soft.git`
