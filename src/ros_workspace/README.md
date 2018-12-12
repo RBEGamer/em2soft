@@ -23,5 +23,7 @@ A running instance of the `roscore` is needed to start ros nodes.
 # CONFIGURATION
 
 In the `./launch_nodes.launch` file you can finddifferent system settings, like IP-Adresses and other values.
-
 * ``` xml<param name="plc_ip" value="192.168.1.18" />``` - The IP Adress of the WAGO SPS
+
+alernativ you can use the build in `ros parameter server` if you remove the `<param` lines in the `./launch_nodes.launch`
+* `rosparam set /plc_ip '192.168.1.18'`
