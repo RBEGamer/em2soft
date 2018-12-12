@@ -1,4 +1,4 @@
-# em2soft
+# Railway Challange 2019 - Team EMMA FH AACHEN
 
 
 
@@ -32,7 +32,6 @@ The locomotive should automatically stop with its front as close to point B as p
 
 
 # ABOUT THE LOCO
-
 * weight 550kg
 * length 2180mm
 * height SOK: 925mm
@@ -47,8 +46,9 @@ The locomotive should automatically stop with its front as close to point B as p
 * NVIDIA TX2 - main control pc
 * WAGO PFC200 PLC 750-8202
 * WAGO 750-1605 24 V 24 IO OUTPUT
+* ........
+* ........
 
-todo weiter
 
 
 
