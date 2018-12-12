@@ -9,8 +9,8 @@
 
 # SETUP
 You can find a `config.json` file in this directory to setup this tablet ui.
-
 * `"webserver_default_port":<port>,` - defines the webserver port [DEFAULT 3345]
+
 
 # START
 First you have to download all NodeJS packages using npm.
