@@ -22,6 +22,8 @@ For easy setup you can find a startup script for the whole system.
 Call `start_all.sh` in the `/src` directory.
 
 
+After that you cann access the Site over the `<IP>:3345/`.
+The site is optimised for the Tablet (`1280x800px`) we are using to control the loco.
 
 
 
