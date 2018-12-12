@@ -10,4 +10,25 @@ This folder contain all sourcefiles for the project.
 
 
 
-# TODO - how to startup
+# SETUP THE SYSTEM
+If you have all components together and connected you can setup the TX2-Board.
+* Install `Ubuntu 16.04` on a VM/PC and download the `Jetson` Installer for your TX2 board, from the `NVIDIA developer site`.
+* Flash the latest Jetson Image to board.
+
+
+* Install `ROS Kinectic`
+* Install `NodeJS >8`
+* Install `Python-Pip`
+
+
+* Clone this repository `git clone https://github.com/RBEGamer/em2soft.git`
+
+
+
+
+# RUN ALL TOGETHER
+
+
+* Flash the PLC Software to your WagoSPS
+* Check the IP Adress of the PLC and the TX2-Board, and check them with the ROS configuration (`./ros_packages/src/modbus_bridge/src/modbus_bridge_node.cpp`)
+
