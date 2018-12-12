@@ -21,6 +21,6 @@ sudo apt-get install -y nodejs build-essential
 cd ~
 git clone https://github.com/jetsonhacks/installROSTX2.git
 cd installROSTX2
-git reset --soft ae6ba4d639
+#git reset --soft ae6ba4d639
 ./installROS.sh -p ros-kinetic-desktop -p ros-kinetic-rgbd-launch
 ./setupCatkinWorkspace.sh default_ros_workspace
