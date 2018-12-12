@@ -17,7 +17,7 @@ If you have all components together and connected you can setup the TX2-Board.
 
 
 * Install `ROS Kinectic`
-* Install `NodeJS >8`
+* Install `NodeJS >= V. 8`
 * Install `Python-Pip`
 
 
