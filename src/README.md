@@ -28,7 +28,7 @@ If you have all components together and connected you can setup the TX2-Board.
 
 # RUN ALL TOGETHER
 
-
 * Flash the PLC Software to your WagoSPS
 * Check the IP Adress of the PLC and the TX2-Board, and check them with the ROS configuration (`./ros_packages/src/modbus_bridge/src/modbus_bridge_node.cpp`)
+* Run the start script `bash ./start_all.sh` to start `roscore`, `ros nodes`, `tablet_ui_server`
 
