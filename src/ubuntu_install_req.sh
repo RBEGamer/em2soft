@@ -3,7 +3,7 @@
 sudo apt-get update && sudo apt-get -y upgrade
 sudo apt-get install python-pip nano python3-pip
 sudo pip install pyserial
-
+sudo pip install pysftp
 
 
 
