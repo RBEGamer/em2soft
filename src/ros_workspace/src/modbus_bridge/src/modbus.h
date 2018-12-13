@@ -10,7 +10,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <unistd.h>
-#include "modbus_exception.h"
+#include "./modbus_exception.h"
 using namespace std;
 
 
