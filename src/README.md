@@ -46,3 +46,4 @@ The files are only copied to the `/tmp` folder of the system, after reboot or cl
 
 # SETUP AUTOSART SCRIPTS
 To startup the whole system at startup, you have to edit the startupfile.
+./start_all.sh
