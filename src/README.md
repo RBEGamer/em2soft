@@ -39,7 +39,9 @@ For installation on the TX2 Board please use the `./tx2_install_req.sh`
 
 
 # DEVELOPING AND DEPLOYMENT
+For easy development, developing the ros nodes on the Ubuntu VM, i have created a autodepoly script that transfers the ros package `./ros_workspace` to the TX2 board and run the nodes there. The Python script `./deploy_to_tx2.py` does that.
+The script needs the ``
+For easy development, developing the ros nodes on the Ubuntu VM, i have created a autodepoly script that transfers the ros package `./ros_workspace` to the TX2 board and run the nodes there. The Python script `./deploy_to_tx2.py` does that
 
 
-
-`deploy_to_tx2.py`
+`./deploy_to_tx2.py <tx2_ip> <username> <password>` for easy use you can edit the `./deploy_to_tx2.sh` with fixed user credentials.
