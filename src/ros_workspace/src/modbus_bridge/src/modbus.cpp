@@ -2,7 +2,7 @@
 // Created by Fanzhe on 5/28/2017.
 //
 
-#include "modbus.h"
+#include "./modbus.h"
 #include <arpa/inet.h>
 using namespace std;
 

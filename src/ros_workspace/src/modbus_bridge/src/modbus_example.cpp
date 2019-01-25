@@ -10,7 +10,7 @@ int main(int argc, char **argv)
     // create a modbus object
     modbus mb = modbus("127.0.0.1", 502);
 
-
+    
     // set slave id
     mb.modbus_set_slave_id(1);
 
