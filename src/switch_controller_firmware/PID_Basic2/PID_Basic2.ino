@@ -3,6 +3,42 @@
  * Reading analog input 0 to control analog PWM output 3
  ********************************************************/
 
+#include<SPI.h>
+#include<nRF24L01.h>
+#include<RF24.h>
+
+
+const uint64_t pipe[1]= {0xF0F0F0F0E1LL};
+RF24 radio(7,8);
+
+const byte send_to_ctl_len = 8;
+byte send_to_ctl[send_to_ctl_len] = {0,50,0,0,0,0,0,0};
+
+const byte rec_from_ctl_len = 8;
+byte rec_from_ctl[rec_from_ctl_len] = {0,0,0,0,0,0,0,0};
+
+
+
+union crc_data
+{
+   unsigned short value;
+   byte bytes[2];
+};
+
+unsigned short crc16(const unsigned char* data_p, unsigned char length){
+    unsigned char x;
+    unsigned short crc = 0xFFFF;
+    while (length--){
+        x = crc >> 8 ^ *data_p++;
+        x ^= x>>4;
+        crc = (crc << 8) ^ ((unsigned short)(x << 12)) ^ ((unsigned short)(x <<5)) ^ ((unsigned short)x);
+    }
+    return crc;
+}
+
+
+
+
 
 
 #include <PID_v1.h>
@@ -11,16 +47,15 @@
 #define PIN_OUTPUT_B 3
 #define PIN_OUTPUT_A 6
 //Define Variables we'll be connecting to
-double Setpoint, Input,Input2, Output;
+double Setpoint_VEL,Setpoint_BRK, Input_VEL,Input2_VEL, Output;
 
 //Specify the links and initial tuning parameters
-double Kp=40, Ki=1.1, Kd=0.5;
-PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
-PID myPID2(&Input2, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
+double Kp=1, Ki=10, Kd=5;
+PID myPID(&Input_VEL, &Output, &Setpoint_VEL, Kp, Ki, Kd, DIRECT);
+PID myPID2(&Input2_VEL, &Output, &Setpoint_VEL, Kp, Ki, Kd, DIRECT);
 
 
-byte randNumber; // if your random number constraint is 1 through 5, why do you need 4 bytes? One will do.
-byte prevRand = 0;
+
 
 int hapitc_feedback_strengh = 100;
 int current_haptic_feedback = 100;
@@ -45,83 +80,146 @@ myPID2.SetOutputLimits(0, current_haptic_feedback);
 
 
 int hf_mode = 0;
+
+unsigned long startMillis;
+
 void setup()
 {
-
-pinMode(4,INPUT);
-pinMode(11,INPUT);
-pinMode(12,INPUT);
-
-
-randomSeed(analogRead(7));
 
  // Wire.begin(9);
 //   Wire.onReceive(receiveEvent);
   Serial.begin(9600);
-  //initialize the variables we're linked to
-  Input = map(analogRead(A1), 0, 1024, 0, 100);
-  Setpoint = 50;
 
-hf_normal();
+  radio.begin();
+  delay(500);
+  radio.setAutoAck(true);
+  radio.enableAckPayload();
+  radio.enableDynamicPayloads();
+  radio.openReadingPipe(1,pipe[0]);
+  radio.stopListening();
+  radio.setRetries(15,15);
+
+  
+  //initialize the variables we're linked to
+  Input_VEL = map(analogRead(A1), 0, 1024, 0, 100);
+  Setpoint_VEL = 50;
+
+hf_max();
   //turn the PID on
   myPID.SetMode(AUTOMATIC);
     myPID2.SetMode(AUTOMATIC);
+
+    startMillis = millis();
 }
 
+
+bool wait_for_reset = false;
 void loop()
 {
 
- //Serial.println(digitalRead(4));
+
+
+
+
+
+
+
+
+
+
+
  
-if(digitalRead(4) == HIGH){
-  while(digitalRead(4) == HIGH){delay(50);}
-//delay(100);
-    randNumber = random(1,10); // generate random number between 1 & 5 (minimum is inclusive, maximum is exclusive)
-  Setpoint = randNumber*10;
-  Serial.println(Setpoint);
+Input_VEL = map(analogRead(A1), 0, 1024, 0, 100);
+Input2_VEL = 100-Input_VEL;
+
+
+
+if(wait_for_reset){
+
+  if(Input_VEL == 50){
+  send_to_ctl[4] = 1;    
+    }
+
+
+
+ 
   }
 
 
-  if(digitalRead(11) == HIGH){
-  while(digitalRead(11) == HIGH){delay(50);}
-  hf_mode++;
-  if(hf_mode >= 3){
-    hf_mode = 0;
-    }
+send_to_ctl[0] = Input_VEL;
+send_to_ctl[1] = Input2_VEL;
+
+
+
+if (millis() - startMillis >= 50)  //test whether the period has elapsed
+  {
+    startMillis = millis();
+     crc_data crcfbsend;
+    crcfbsend.value = crc16(send_to_ctl,sizeof(send_to_ctl)-2);
+    send_to_ctl[send_to_ctl_len-2] = crcfbsend.bytes[0];
+    send_to_ctl[send_to_ctl_len-1] = crcfbsend.bytes[1]; 
+    if(radio.write( send_to_ctl, sizeof(send_to_ctl) )){
+        radio.read( &rec_from_ctl,sizeof(rec_from_ctl) );
+        unsigned short crc_from_ctl = crc16(rec_from_ctl,sizeof(rec_from_ctl)-2);
+        crc_data crcctlrec;
+        crcctlrec.bytes[0] = rec_from_ctl[sizeof(rec_from_ctl)-2];
+        crcctlrec.bytes[1] = rec_from_ctl[sizeof(rec_from_ctl)-1];
+
+        if(crc_from_ctl == crcctlrec.value){
+          Setpoint_VEL = rec_from_ctl[1];
+          Setpoint_BRK = rec_from_ctl[3];
+          
+          
+           
+          if(rec_from_ctl[0] == 0){
+          analogWrite(PIN_OUTPUT_A, 0);
+          analogWrite(PIN_OUTPUT_B, 0);
+          }
+
+          if(rec_from_ctl[5] == 1){
+           wait_for_reset  = true;
+            send_to_ctl[4] = 0;
+            Setpoint_VEL = 50;
+           }
+
+          
+          }
+   
+      }
+      
+  }
+
   
-  switch(hf_mode){
-    case 0:hf_max();break;
-     case 1:hf_normal();break;
-      case 2:hf_off();break;
-      default:hf_mode=0;break;
-    }
-    
-  }
-Input = map(analogRead(A1), 0, 1024, 0, 100);
-Input2 = 100-Input;
 
-if(abs(Setpoint-Input)< 5){
+   
+    
+    
+
+
+
+
+
+//PID CTL FOR VELOCITY SLIDER
+if(rec_from_ctl[5] == 1|| rec_from_ctl[0] > 0){
+if(abs(Setpoint_VEL-Input_VEL)< 5){
    analogWrite(PIN_OUTPUT_A, 0);
    analogWrite(PIN_OUTPUT_B, 0);
-  return;
-  }
-
-
-  
-if((Setpoint-Input)> 0){ 
-  myPID.Compute();
-//Serial.println(Output);
+    return;
+  } 
+if((Setpoint_VEL-Input_VEL)> 0){ 
+    myPID.Compute();
    analogWrite(PIN_OUTPUT_A, 0);
    analogWrite(PIN_OUTPUT_B, abs(Output));
 }
-
-
-  if((Setpoint-Input)< 0){ 
-  myPID2.Compute();
-//Serial.println(Output);
+  if((Setpoint_VEL-Input_VEL)< 0){ 
+    myPID2.Compute();
    analogWrite(PIN_OUTPUT_B, 0);
    analogWrite(PIN_OUTPUT_A, abs(Output));
-}
+}  
+  }else{
+    
+    }
+
 
 
 }
