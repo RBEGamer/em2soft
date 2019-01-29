@@ -5,17 +5,6 @@
 
 
 
-#include <Ethernet.h>
-#include <EthernetUdp.h>
-
-
-
-
-
-
-
-
-
 
 
 #define ERROR_NOTAUS_CHECK_TIMEOUT 150 //x fehler in 150ms
@@ -98,9 +87,13 @@ void setup()
 {
 
 
-
- 
   Serial.begin(9600);
+
+
+
+
+
+  
   pinMode(PIN_HEARTBEAT,OUTPUT);
   
   pinMode(PIN_NOTAUS_RELAIS,OUTPUT);
@@ -123,6 +116,10 @@ void setup()
 }
 void loop()
 {
+
+
+    
+    
   if ( radio.available() ) {
     crc_data crcfbsend;
     crcfbsend.value = crc16(send_to_fb,sizeof(send_to_fb)-2);

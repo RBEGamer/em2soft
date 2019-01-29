@@ -140,8 +140,9 @@ Input2_BRK = 100-Input_BRK;
 //WAIT FOR RESET LOGIC
 if(wait_for_reset){
   //vel in mittelstellung; federspeicehr angelegt
-  if(Input_VEL == 50 && Input_BRK == 100){
-  send_to_ctl[4] = 1;    
+  if(Input_VEL >48 && Input_VEL < 52 && Input_BRK > 90){
+  send_to_ctl[4] = 1;
+  digitalWrite(PIN_LED_NOTAUS, LOW);     
     }
 
 if(millis()-led_blink_milis > 150){
