@@ -9,13 +9,7 @@
 #include <EthernetUdp.h>
 
 
-EthernetUDP Udp;
-byte mac[] = {0x90, 0xA2, 0xDA, 0x0D, 0x5C, 0x18};
-IPAddress ip(192,168,178,177);
-unsigned int localport = 4015;
 
-IPAddress remoteIP(192,168,178,100);
-unsigned int remotePort = 4014;
 
 
 
@@ -68,18 +62,16 @@ unsigned short crc16(const unsigned char* data_p, unsigned char length){
 
 
 
+bool fb_reset_ok = false;
 
 void send_fb_data_toctl(){
   //daten senden mosbus oder serial
 
-  Udp.beginPacket("192.168.178.100", 4014);
- Udp.println("Mensaje UDP");
- Serial.println("Mensaje UDP");
- Udp.endPacket();
-
+if(fb_reset_ok){
+  Serial.println(rec_from_fb[0]);
+  }
 }
 
-bool fb_reset_ok = false;
 void send_fb_default(){
   //sends default
   send_to_fb[5] = 1;
@@ -91,7 +83,11 @@ void fb_error_notaus(){
   //notaus an fb senden
    digitalWrite(PIN_NOTAUS_RELAIS,NOTAUS_RELAIS_ACTIVE);
    send_to_fb[4] = 1; //SEND FB NOTAUS
-   
+   Serial.println("notaus");
+   while(1){
+    delay(1000);
+    Serial.println("waiting for reset");
+    }
   }
 
 
@@ -104,29 +100,11 @@ void setup()
 
 
  
-  Serial.begin(115200);
+  Serial.begin(9600);
   pinMode(PIN_HEARTBEAT,OUTPUT);
   
   pinMode(PIN_NOTAUS_RELAIS,OUTPUT);
   digitalWrite(PIN_NOTAUS_RELAIS,NOTAUS_RELAIS_INACTIVE);
-
-
-  Ethernet.init(10);
-  Ethernet.begin(mac,ip);
-  if (Ethernet.hardwareStatus() == EthernetNoHardware) {
-    Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
-    while (true) {
-      delay(1); // do nothing, no point running without Ethernet hardware
-    }
-  }
-  if (Ethernet.linkStatus() == LinkOFF) {
-    Serial.println("Ethernet cable is not connected.");
-  }
- Serial.print("IP : ");
- Serial.println(Ethernet.localIP());
-
- 
-  Udp.begin(4015);
 
  
   radio.begin();
@@ -175,7 +153,7 @@ if(send_to_fb[5] == 1 && rec_from_fb[4] == 1){
   fb_reset_ok = true;
   Serial.println("got reset state");
   }
-Serial.println(rec_from_fb[0]);
+
  //fb hat den reset status eingenommen nach NOTAUS
  if(send_to_fb[4] == 1 && rec_from_fb[4] == 1){
   send_to_fb[4] = 0;
