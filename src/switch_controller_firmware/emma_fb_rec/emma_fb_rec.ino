@@ -4,6 +4,26 @@
 #include<RF24.h>
 
 
+
+#include <Ethernet.h>
+#include <EthernetUdp.h>
+
+
+EthernetUDP Udp;
+byte mac[] = {0x90, 0xA2, 0xDA, 0x0D, 0x5C, 0x18};
+IPAddress ip(192,168,178,177);
+unsigned int localport = 4015;
+
+IPAddress remoteIP(192,168,178,100);
+unsigned int remotePort = 4014;
+
+
+
+
+
+
+
+
 #define ERROR_NOTAUS_CHECK_TIMEOUT 150 //x fehler in 150ms
 #define NOTAUS_ERROR_COUNT 3 //fehler bis notaus
 #define PACKET_LOSS_TIMEOUT 80 //alle x ms muss ein paket von FB gesendet worden sein
@@ -51,6 +71,12 @@ unsigned short crc16(const unsigned char* data_p, unsigned char length){
 
 void send_fb_data_toctl(){
   //daten senden mosbus oder serial
+
+  Udp.beginPacket("192.168.178.100", 4014);
+ Udp.println("Mensaje UDP");
+ Serial.println("Mensaje UDP");
+ Udp.endPacket();
+
 }
 
 bool fb_reset_ok = false;
@@ -74,11 +100,35 @@ unsigned long mili_timer_last_packet = 0;
 unsigned long mili_timer_heartbeat = 0;
 void setup()
 {
-  Serial.begin(9600);
+
+
+
+ 
+  Serial.begin(115200);
   pinMode(PIN_HEARTBEAT,OUTPUT);
   
   pinMode(PIN_NOTAUS_RELAIS,OUTPUT);
   digitalWrite(PIN_NOTAUS_RELAIS,NOTAUS_RELAIS_INACTIVE);
+
+
+  Ethernet.init(10);
+  Ethernet.begin(mac,ip);
+  if (Ethernet.hardwareStatus() == EthernetNoHardware) {
+    Serial.println("Ethernet shield was not found.  Sorry, can't run without hardware. :(");
+    while (true) {
+      delay(1); // do nothing, no point running without Ethernet hardware
+    }
+  }
+  if (Ethernet.linkStatus() == LinkOFF) {
+    Serial.println("Ethernet cable is not connected.");
+  }
+ Serial.print("IP : ");
+ Serial.println(Ethernet.localIP());
+
+ 
+  Udp.begin(4015);
+
+ 
   radio.begin();
   delay(500);
   radio.setAutoAck(true);
@@ -88,7 +138,7 @@ void setup()
   radio.startListening();
   radio.setRetries(15,15);
   send_fb_default();
-
+  
   mili_timer_crc = millis();
   mili_timer_last_packet = millis();
   mili_timer_heartbeat = millis();
@@ -125,12 +175,15 @@ if(send_to_fb[5] == 1 && rec_from_fb[4] == 1){
   fb_reset_ok = true;
   Serial.println("got reset state");
   }
-
+Serial.println(rec_from_fb[0]);
  //fb hat den reset status eingenommen nach NOTAUS
  if(send_to_fb[4] == 1 && rec_from_fb[4] == 1){
   send_to_fb[4] = 0;
   fb_reset_ok = true;
   }
+
+send_fb_data_toctl();
+
 
           
       }else{

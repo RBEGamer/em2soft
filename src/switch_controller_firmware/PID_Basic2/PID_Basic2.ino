@@ -43,18 +43,22 @@ unsigned short crc16(const unsigned char* data_p, unsigned char length){
 
 #include <PID_v1.h>
 
-#define PIN_INPUT 1
+#define PIN_INPUT_VEL A1 //analog input for velocity slider
+#define PIN_INPUT_BRK A2 //analog input for break slider
+
 #define PIN_OUTPUT_B 3
 #define PIN_OUTPUT_A 6
 //Define Variables we'll be connecting to
-double Setpoint_VEL,Setpoint_BRK, Input_VEL,Input2_VEL, Output;
+double Setpoint_VEL,Setpoint_BRK, Input_VEL,Input2_VEL,Input_BRK,Input2_BRK, Output_VEL,Output_BRK;
 
 //Specify the links and initial tuning parameters
-double Kp=1, Ki=10, Kd=5;
-PID myPID(&Input_VEL, &Output, &Setpoint_VEL, Kp, Ki, Kd, DIRECT);
-PID myPID2(&Input2_VEL, &Output, &Setpoint_VEL, Kp, Ki, Kd, DIRECT);
+double Kp=100, Ki=1.1, Kd=0.1;
+PID myPID(&Input_VEL, &Output_VEL, &Setpoint_VEL, Kp, Ki, Kd, DIRECT);
+PID myPID2(&Input2_VEL, &Output_VEL, &Setpoint_VEL, Kp, Ki, Kd, DIRECT);
 
 
+#define PIN_BUTTON_HUPE A3
+#define PIN_LED_NOTAUS A4
 
 
 int hapitc_feedback_strengh = 100;
@@ -82,14 +86,17 @@ myPID2.SetOutputLimits(0, current_haptic_feedback);
 int hf_mode = 0;
 
 unsigned long startMillis;
-
+unsigned long led_blink_milis = 0;
+bool led_blink_state = false;
 void setup()
 {
 
  // Wire.begin(9);
 //   Wire.onReceive(receiveEvent);
   Serial.begin(9600);
-
+  pinMode(PIN_BUTTON_HUPE,INPUT_PULLUP);
+  pinMode(PIN_LED_NOTAUS, OUTPUT);
+  digitalWrite(PIN_LED_NOTAUS, LOW);
   radio.begin();
   delay(500);
   radio.setAutoAck(true);
@@ -101,8 +108,10 @@ void setup()
 
   
   //initialize the variables we're linked to
-  Input_VEL = map(analogRead(A1), 0, 1024, 0, 100);
+  Input_VEL = map(analogRead(PIN_INPUT_VEL), 0, 1024, 0, 100);
+   Input_BRK = map(analogRead(PIN_INPUT_BRK), 0, 1024, 0, 100);
   Setpoint_VEL = 50;
+  Setpoint_BRK = 100;
 
 hf_max();
   //turn the PID on
@@ -120,26 +129,28 @@ void loop()
 
 
 
-
-
-
-
-
-
-
-
- 
-Input_VEL = map(analogRead(A1), 0, 1024, 0, 100);
+Input_VEL = map(analogRead(PIN_INPUT_VEL), 0, 1024, 0, 100);
 Input2_VEL = 100-Input_VEL;
 
+Input_BRK = 100;//map(analogRead(PIN_INPUT_BRK), 0, 1024, 0, 100);
+Input2_BRK = 100-Input_BRK;
 
 
+
+//WAIT FOR RESET LOGIC
 if(wait_for_reset){
-
-  if(Input_VEL == 50){
+  //vel in mittelstellung; federspeicehr angelegt
+  if(Input_VEL == 50 && Input_BRK == 100){
   send_to_ctl[4] = 1;    
     }
 
+if(millis()-led_blink_milis > 150){
+  led_blink_milis = millis();
+  led_blink_state = !led_blink_state;
+ 
+digitalWrite(PIN_LED_NOTAUS, led_blink_state);  
+  }
+  
 
 
  
@@ -147,12 +158,20 @@ if(wait_for_reset){
 
 
 send_to_ctl[0] = Input_VEL;
-send_to_ctl[1] = Input2_VEL;
+send_to_ctl[1] = Input_BRK;
 
 
 
 if (millis() - startMillis >= 50)  //test whether the period has elapsed
   {
+    if(digitalRead(PIN_BUTTON_HUPE) == HIGH){
+      send_to_ctl[3] = 0;
+      }else{
+    send_to_ctl[3] = 1;
+        }
+    
+
+    
     startMillis = millis();
      crc_data crcfbsend;
     crcfbsend.value = crc16(send_to_ctl,sizeof(send_to_ctl)-2);
@@ -169,19 +188,31 @@ if (millis() - startMillis >= 50)  //test whether the period has elapsed
           Setpoint_VEL = rec_from_ctl[1];
           Setpoint_BRK = rec_from_ctl[3];
           
+          if(rec_from_ctl[2] == 0){
+            //TODO FOR BREAK SLIDER
+         // analogWrite(PIN_OUTPUT_A, 0);
+         // analogWrite(PIN_OUTPUT_B, 0);
+          }
+
           
-           
           if(rec_from_ctl[0] == 0){
           analogWrite(PIN_OUTPUT_A, 0);
           analogWrite(PIN_OUTPUT_B, 0);
           }
 
+          
+
+          //wait for sliders in reset postion
           if(rec_from_ctl[5] == 1){
            wait_for_reset  = true;
             send_to_ctl[4] = 0;
             Setpoint_VEL = 50;
            }
 
+          //led show notaus
+          if(rec_from_ctl[4]  >0){
+            digitalWrite(PIN_LED_NOTAUS,HIGH);
+            }
           
           }
    
@@ -195,7 +226,9 @@ if (millis() - startMillis >= 50)  //test whether the period has elapsed
     
     
 
+if(rec_from_ctl[5] == 1|| rec_from_ctl[2] > 0){
 
+}
 
 
 
@@ -209,12 +242,12 @@ if(abs(Setpoint_VEL-Input_VEL)< 5){
 if((Setpoint_VEL-Input_VEL)> 0){ 
     myPID.Compute();
    analogWrite(PIN_OUTPUT_A, 0);
-   analogWrite(PIN_OUTPUT_B, abs(Output));
+   analogWrite(PIN_OUTPUT_B, abs(Output_VEL));
 }
   if((Setpoint_VEL-Input_VEL)< 0){ 
     myPID2.Compute();
    analogWrite(PIN_OUTPUT_B, 0);
-   analogWrite(PIN_OUTPUT_A, abs(Output));
+   analogWrite(PIN_OUTPUT_A, abs(Output_VEL));
 }  
   }else{
     
