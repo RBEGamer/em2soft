@@ -35,3 +35,18 @@ The current velocity is shown by the left slider, so if thespped is 7km/h the sl
 # SOFTWARE
 * `receieve_station_fw` -> Firmware for the ground station
 * `remote_controller_fw` -> Firmware for the 
+
+## REC
+* `D3` -> 3 seconds hearbeat
+* `D2` -> emergency output. `LOW`->STOP, `HIGH`-> OK, Controller in sync
+* `D7` -> NRF24 CE
+* `D8` -> NRF24 CSE
+* `D10` -> MCP2515 CE
+the NRF24 and mcp2515 other pins connect to the SPI bus
+
+
+## TRANS
+* `D3 D6` ld293d inputs for left motor(-slider)
+* `D5 D9` ld293d inputs for right motor(-slider)
+* `D3` signal horn button
+* `D4` led emergency error / out if sync
