@@ -4,8 +4,9 @@
 #include<RF24.h>
 
 
-
-
+#define MCP_CAN_CE_PIN 10
+#include <mcp_can.h>
+MCP_CAN CAN(MCP_CAN_CE_PIN);
 
 #define ERROR_NOTAUS_CHECK_TIMEOUT 555 //x fehler in 150ms
 #define NOTAUS_ERROR_COUNT 3 //fehler bis notaus
@@ -17,7 +18,7 @@
 
 #define PIN_HEARTBEAT 3
 bool heartbeat_state  = 0;
-
+#define HEARTBEAT_TOGGLE_TIME 3000
 
 unsigned int errors_in_time = 0;
 const byte addresses[][6] = {"00001", "00002"};
@@ -100,7 +101,20 @@ void setup()
 
   
   send_fb_default();
-  
+
+
+  while (CAN_OK != CAN.begin(CAN_250KBPS))
+    {
+        Serial.println("CAN BUS init Failed");
+        delay(300);
+        heartbeat_state = !heartbeat_state;
+         digitalWrite(PIN_HEARTBEAT, heartbeat_state);
+          digitalWrite(PIN_NOTAUS_RELAIS,NOTAUS_RELAIS_ACTIVE);
+    
+    }
+Serial.println("CAN BUS Shield Init OK!");
+
+
   mili_timer_crc = millis();
   mili_timer_last_packet = millis();
   mili_timer_heartbeat = millis();
@@ -125,7 +139,7 @@ void loop()
     if(crcfbrec.value == crc_from_fb){
 
   //SHOW HEARTBEAT
-  if(millis()-mili_timer_heartbeat > 500){
+  if(millis()-mili_timer_heartbeat > HEARTBEAT_TOGGLE_TIME){
     mili_timer_heartbeat = millis();
     heartbeat_state = !heartbeat_state;
     digitalWrite(PIN_HEARTBEAT, heartbeat_state);
@@ -152,6 +166,8 @@ if(send_to_fb[5] == 1 && rec_from_fb[4] == 1){
 
 if(fb_reset_ok){
  // Serial.println(rec_from_fb[0]);
+ unsigned char stmp[8] = {rec_from_fb[0], rec_from_fb[1], rec_from_fb[3], 0, 0, 0, 0, 0};
+ CAN.sendMsgBuf(0x43, 0, 8, stmp);
   }
 
   
@@ -197,7 +213,7 @@ mili_timer_last_packet = millis();
 //CHECK INTERVAL FOR CRC ERRORS
 if(millis() - mili_timer_crc > ERROR_NOTAUS_CHECK_TIMEOUT){
   mili_timer_crc = millis();
-  Serial.println(errors_in_time);
+
   if(errors_in_time > NOTAUS_ERROR_COUNT){  
     fb_error_notaus();//sende notaus an fb
      errors_in_time = 0;
