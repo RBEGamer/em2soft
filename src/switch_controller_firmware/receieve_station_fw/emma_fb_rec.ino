@@ -170,6 +170,8 @@ if(fb_reset_ok){
    bool is_ebraking = false;
    byte vel_amount = 0;
    byte ebrk_amount = 0;
+   byte pneu_brake = map(rec_from_fb[1],0,100,0,3);
+   
    if(rec_from_fb[0] < 50){
       is_ebraking = true;
       vel_amount = 0;
@@ -181,7 +183,7 @@ if(fb_reset_ok){
   
    
    
- unsigned char stmp[8] = {vel_amount, ebrk_amount],rec_from_fb[1] , is_ebraking, rec_from_fb[3], 0, 0, 0};
+ unsigned char stmp[8] = {vel_amount, ebrk_amount,pneu_brake , is_ebraking, rec_from_fb[3], 0, 0, 0};
  CAN.sendMsgBuf(CAN_ADDR_STATE_SEND, 0, 8, stmp);
   }
 
