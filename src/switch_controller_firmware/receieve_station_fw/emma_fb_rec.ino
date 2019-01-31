@@ -3,7 +3,7 @@
 #include<nRF24L01.h>
 #include<RF24.h>
 
-
+#define CAN_ADDR_STATE_SEND 0x48 //the can addr to send the current values
 #define MCP_CAN_CE_PIN 10
 #include <mcp_can.h>
 MCP_CAN CAN(MCP_CAN_CE_PIN);
@@ -166,8 +166,23 @@ if(send_to_fb[5] == 1 && rec_from_fb[4] == 1){
 
 if(fb_reset_ok){
  // Serial.println(rec_from_fb[0]);
- unsigned char stmp[8] = {rec_from_fb[0], rec_from_fb[1], rec_from_fb[3], 0, 0, 0, 0, 0};
- CAN.sendMsgBuf(0x43, 0, 8, stmp);
+   
+   bool is_ebraking = false;
+   byte vel_amount = 0;
+   byte ebrk_amount = 0;
+   if(rec_from_fb[0] < 50){
+      is_ebraking = true;
+      vel_amount = 0;
+      ebrk_amount = map(rec_from_fb[0],0,49,0,100);
+   }else{
+      ebrk_amount = 0;
+      ebrk_amount = map(rec_from_fb[0],50,100,0,100);
+   }
+  
+   
+   
+ unsigned char stmp[8] = {vel_amount, ebrk_amount],rec_from_fb[1] , is_ebraking, rec_from_fb[3], 0, 0, 0};
+ CAN.sendMsgBuf(CAN_ADDR_STATE_SEND, 0, 8, stmp);
   }
 
   
