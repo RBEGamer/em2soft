@@ -183,8 +183,16 @@ if(fb_reset_ok){
   
    
    
+   //TODO TEST
+   //activeates haptic feedback for penumatic controller
+   send_to_fb[2] = 1;
+   send_to_fb[3] = pneu_brake*10;
+   
+   
  unsigned char stmp[8] = {vel_amount, ebrk_amount,pneu_brake , is_ebraking, rec_from_fb[3], 0, 0, 0};
  CAN.sendMsgBuf(CAN_ADDR_STATE_SEND, 0, 8, stmp);
+   
+   
   }
 
   
