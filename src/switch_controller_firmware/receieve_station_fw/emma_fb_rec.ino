@@ -178,16 +178,18 @@ if(fb_reset_ok){
       ebrk_amount = map(rec_from_fb[0],0,49,0,100);
    }else{
       ebrk_amount = 0;
-      ebrk_amount = map(rec_from_fb[0],50,100,0,100);
+      vel_amount = map(rec_from_fb[0],50,100,0,100);
    }
   
    
    
    //TODO TEST
-   //activeates haptic feedback for penumatic controller
+   //activeates haptic feedback for penumatic slider
    send_to_fb[2] = 1;
    send_to_fb[3] = pneu_brake*10;
-   
+    //activeates haptic feedback for velocity slider
+   send_to_fb[0] = 1;
+   send_to_fb[1] = map(rec_from_fb[0],0,100,0,10)*10;
    
  unsigned char stmp[8] = {vel_amount, ebrk_amount,pneu_brake , is_ebraking, rec_from_fb[3], 0, 0, 0};
  CAN.sendMsgBuf(CAN_ADDR_STATE_SEND, 0, 8, stmp);
