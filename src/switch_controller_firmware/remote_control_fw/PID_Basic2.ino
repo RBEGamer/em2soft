@@ -161,7 +161,8 @@ if(wait_for_reset){
   send_to_ctl[4] = 1;
   digitalWrite(PIN_LED_NOTAUS, LOW);
   Serial.println("wfr condition ok");
-  wait_for_reset = false;     
+  wait_for_reset = false;   
+  hf_normal();
     }
 //
 if(millis()-led_blink_milis > 150){
@@ -229,7 +230,7 @@ if (millis() - startMillis >= 50)  //test whether the period has elapsed
 
           //wait for sliders in reset postion
           if(rec_from_ctl[5] == 1){
-            if(!wait_for_reset){Serial.println("got wtr request");}
+            if(!wait_for_reset){Serial.println("got wtr request");hf_max();}
             wait_for_reset  = true;
             send_to_ctl[4] = 0;
             Setpoint_VEL = 50;
