@@ -55,7 +55,7 @@ unsigned short crc16(const unsigned char* data_p, unsigned char length){
 double Setpoint_VEL,Setpoint_BRK, Input_VEL,Input2_VEL,Input_BRK,Input2_BRK, Output_VEL,Output_BRK;
 
 //Specify the links and initial tuning parameters
-double Kp=100, Ki=1.1, Kd=0.1;
+double Kp=5.9, Ki=3.6, Kd=0.0;
 PID myPID(&Input_VEL, &Output_VEL, &Setpoint_VEL, Kp, Ki, Kd, DIRECT);
 PID myPID2(&Input2_VEL, &Output_VEL, &Setpoint_VEL, Kp, Ki, Kd, DIRECT);
 
@@ -71,29 +71,16 @@ PID myPID2_BRK(&Input2_BRK, &Output_BRK, &Setpoint_BRK, Kp, Ki, Kd, DIRECT);
 int hapitc_feedback_strengh = 100;
 int current_haptic_feedback = 100;
 
-void hf_off(){
-  current_haptic_feedback = 1;
-  myPID.SetOutputLimits(0, current_haptic_feedback);
-  myPID2.SetOutputLimits(0, current_haptic_feedback);
-  myPID_BRK.SetOutputLimits(0, current_haptic_feedback);
-  myPID2_BRK.SetOutputLimits(0, current_haptic_feedback);
-  }
+
 
   void hf_max(){
-  current_haptic_feedback = 255;
+  current_haptic_feedback = 196;
   myPID.SetOutputLimits(0, current_haptic_feedback);
 myPID2.SetOutputLimits(0, current_haptic_feedback);
   myPID_BRK.SetOutputLimits(0, current_haptic_feedback);
 myPID2_BRK.SetOutputLimits(0, current_haptic_feedback);
   }
 
-  void hf_normal(){
-  current_haptic_feedback = hapitc_feedback_strengh;
-  myPID.SetOutputLimits(0, current_haptic_feedback);
-myPID2.SetOutputLimits(0, current_haptic_feedback);
-  myPID_BRK.SetOutputLimits(0, current_haptic_feedback);
-myPID2_BRK.SetOutputLimits(0, current_haptic_feedback);
-  }
 
 
 int hf_mode = 0;
@@ -122,14 +109,14 @@ const byte address[6] = "00002";
   Input_VEL = map(analogRead(PIN_INPUT_VEL), 0, 1024, 0, 100);
    Input_BRK = map(analogRead(PIN_INPUT_BRK), 0, 1024, 0, 100);
   Setpoint_VEL = 50;
-  Setpoint_BRK = 100;
+  Setpoint_BRK = 10;
 
 
    analogWrite(PIN_OUTPUT_A, 0);
    analogWrite(PIN_OUTPUT_B, 0);
    analogWrite(PIN_OUTPUT_A_BRK, 0);
    analogWrite(PIN_OUTPUT_B_BRK, 0);
-   hf_normal();
+   hf_max();
   //turn the PID on
     myPID.SetMode(AUTOMATIC);
     myPID2.SetMode(AUTOMATIC);
@@ -155,29 +142,25 @@ send_to_ctl[1] = Input_BRK;
 
 
 //WAIT FOR RESET LOGIC
-if(wait_for_reset){
+//if(wait_for_reset){
   //vel in mittelstellung; federspeicehr angelegt
-  if(Input_VEL > 48 && Input_VEL < 52 && Input_BRK > 90){
+  //if(Input_VEL > 48 && Input_VEL < 52 && Input_BRK > 90){
   send_to_ctl[4] = 1;
-  digitalWrite(PIN_LED_NOTAUS, LOW);
-  Serial.println("wfr condition ok");
+  //digitalWrite(PIN_LED_NOTAUS, LOW);
+  //Serial.println("wfr condition ok");
   wait_for_reset = false;   
-  hf_normal();
-    }
+  //hf_normal();
+  //  }
 //
-if(millis()-led_blink_milis > 150){
-  led_blink_milis = millis();
-  led_blink_state = !led_blink_state;
-  digitalWrite(PIN_LED_NOTAUS, led_blink_state);  
-  } 
-  }
+//if(millis()-led_blink_milis > 150){
+ // led_blink_milis = millis();
+ // led_blink_state = !led_blink_state;
+ // digitalWrite(PIN_LED_NOTAUS, led_blink_state);  
+ // } 
+ // }
 
-//HUPEN LOGIC
- if(digitalRead(PIN_BUTTON_HUPE) == HIGH){
-      send_to_ctl[3] = 0;
-      }else{
-      send_to_ctl[3] = 1;
-      }
+
+
 
 
 
@@ -210,12 +193,12 @@ if (millis() - startMillis >= 50)  //test whether the period has elapsed
         crc_data crcctlrec;
         crcctlrec.bytes[0] = rec_from_ctl[sizeof(rec_from_ctl)-2];
         crcctlrec.bytes[1] = rec_from_ctl[sizeof(rec_from_ctl)-1];
-
+    
         if(crc_from_ctl == crcctlrec.value){
           Setpoint_VEL = rec_from_ctl[1];
           Setpoint_BRK = rec_from_ctl[3];
-          
        
+             Serial.println(String(Setpoint_BRK) + "-" + String(Input_BRK));
           
           if(rec_from_ctl[0] == 0){
           analogWrite(PIN_OUTPUT_A, 0);
@@ -229,16 +212,16 @@ if (millis() - startMillis >= 50)  //test whether the period has elapsed
           
 
           //wait for sliders in reset postion
-          if(rec_from_ctl[5] == 1){
-            if(!wait_for_reset){Serial.println("got wtr request");hf_max();}
-            wait_for_reset  = true;
-            send_to_ctl[4] = 0;
-            Setpoint_VEL = 50;
-            Setpoint_BRK = 100;
-           }else{
-           wait_for_reset =false;
-           send_to_ctl[4] = 0;
-            }
+         // if(rec_from_ctl[5] == 1){
+         //   if(!wait_for_reset){Serial.println("got wtr request");hf_max();}
+         //   wait_for_reset  = true;
+         //   send_to_ctl[4] = 0;
+         //   Setpoint_VEL = 50;
+        //    Setpoint_BRK = 100;
+        //   }else{
+        //   wait_for_reset =false;
+        //   send_to_ctl[4] = 0;
+        //    }
 
           //led show notaus
           if(rec_from_ctl[4]  >0){
@@ -253,45 +236,46 @@ if (millis() - startMillis >= 50)  //test whether the period has elapsed
   
 
    
-    
+
     
 
-if(wait_for_reset|| rec_from_ctl[2] > 0){
-if(abs(Setpoint_BRK-Input_BRK)< 5){
+//if(wait_for_reset|| rec_from_ctl[2] > 0){
+if(abs(Setpoint_BRK-Input_BRK)< 3){
    analogWrite(PIN_OUTPUT_A_BRK, 0);
    analogWrite(PIN_OUTPUT_B_BRK, 0);
-  } 
-if((Setpoint_BRK-Input_BRK)> 0){ 
+  }else if((Setpoint_BRK-Input_BRK)> 0){ 
     myPID_BRK.Compute();
    analogWrite(PIN_OUTPUT_A_BRK, 0);
-   analogWrite(PIN_OUTPUT_B_BRK, abs(Output_BRK));
-}
-  if((Setpoint_BRK-Input_BRK)< 0){ 
+   analogWrite(PIN_OUTPUT_B_BRK, Output_BRK);
+}else if((Setpoint_BRK-Input_BRK)< 0){ 
     myPID2_BRK.Compute();
    analogWrite(PIN_OUTPUT_B_BRK, 0);
-   analogWrite(PIN_OUTPUT_A_BRK, abs(Output_BRK));
+   analogWrite(PIN_OUTPUT_A_BRK, Output_BRK);
 }  
-}
+//}else{
+//   analogWrite(PIN_OUTPUT_A_BRK, 0);
+//   analogWrite(PIN_OUTPUT_B_BRK, 0);
+//   }
 
 
 
 //PID CTL FOR VELOCITY SLIDER
-if(wait_for_reset || rec_from_ctl[0] > 0){
-if(abs(Setpoint_VEL-Input_VEL)< 5){
+//if(wait_for_reset || rec_from_ctl[0] > 0){
+if(abs(Setpoint_VEL-Input_VEL)< 3){
    analogWrite(PIN_OUTPUT_A, 0);
    analogWrite(PIN_OUTPUT_B, 0);
-  } 
-if((Setpoint_VEL-Input_VEL)> 0){ 
+  } else if((Setpoint_VEL-Input_VEL)> 0){ 
     myPID.Compute();
    analogWrite(PIN_OUTPUT_A, 0);
    analogWrite(PIN_OUTPUT_B, abs(Output_VEL));
-}
-  if((Setpoint_VEL-Input_VEL)< 0){ 
+}else if((Setpoint_VEL-Input_VEL)< 0){ 
     myPID2.Compute();
    analogWrite(PIN_OUTPUT_B, 0);
    analogWrite(PIN_OUTPUT_A, abs(Output_VEL));
 }  
-  }
+ // }else{
+ //    analogWrite(PIN_OUTPUT_A_BRK, 0);
+ //  analogWrite(PIN_OUTPUT_B_BRK, 0);}
 
 
 

@@ -5,8 +5,8 @@
 
 #define CAN_ADDR_STATE_SEND 0x48 //the can addr to send the current values
 #define MCP_CAN_CE_PIN 10
-#include <mcp_can.h>
-MCP_CAN CAN(MCP_CAN_CE_PIN);
+//#include <mcp_can.h>
+//MCP_CAN CAN(MCP_CAN_CE_PIN);
 
 #define ERROR_NOTAUS_CHECK_TIMEOUT 555 //x fehler in 150ms
 #define NOTAUS_ERROR_COUNT 3 //fehler bis notaus
@@ -68,10 +68,10 @@ void fb_error_notaus(){
   //notaus an fb senden
    digitalWrite(PIN_NOTAUS_RELAIS,NOTAUS_RELAIS_ACTIVE);
    send_to_fb[4] = 1; //SEND FB NOTAUS
-   Serial.println("notaus");
+   Serial.println("__not__");
   while(1){
     delay(1000);
-    Serial.println("waiting for reset notaus");
+    Serial.println("__wfr__");
     }
   }
 
@@ -79,6 +79,29 @@ void fb_error_notaus(){
 unsigned long mili_timer_crc = 0;
 unsigned long mili_timer_last_packet = 0;
 unsigned long mili_timer_heartbeat = 0;
+
+
+
+String getValue(String data, char separator, int index)
+{
+    int found = 0;
+    int strIndex[] = {
+        0, -1};
+    int maxIndex = data.length() - 1;
+    for (int i = 0; i <= maxIndex && found <= index; i++)
+    {
+        if (data.charAt(i) == separator || i == maxIndex)
+        {
+            found++;
+            strIndex[0] = strIndex[1] + 1;
+            strIndex[1] = (i == maxIndex) ? i + 1 : i;
+        }
+    }
+    return found > index ? data.substring(strIndex[0], strIndex[1]) : "";
+}
+
+
+
 void setup()
 {
 
@@ -103,22 +126,24 @@ void setup()
   send_fb_default();
 
 
-  while (CAN_OK != CAN.begin(CAN_250KBPS))
-    {
-        Serial.println("CAN BUS init Failed");
-        delay(300);
-        heartbeat_state = !heartbeat_state;
-         digitalWrite(PIN_HEARTBEAT, heartbeat_state);
-          digitalWrite(PIN_NOTAUS_RELAIS,NOTAUS_RELAIS_ACTIVE);
+ // while (CAN_OK != CAN.begin(CAN_250KBPS))
+   // {
+     //   Serial.println("CAN BUS init Failed");
+       // delay(300);
+   //     heartbeat_state = !heartbeat_state;
+     //    digitalWrite(PIN_HEARTBEAT, heartbeat_state);
+       //   digitalWrite(PIN_NOTAUS_RELAIS,NOTAUS_RELAIS_ACTIVE);
     
-    }
-Serial.println("CAN BUS Shield Init OK!");
+   // }
+//Serial.println("CAN BUS Shield Init OK!");
 
 
   mili_timer_crc = millis();
   mili_timer_last_packet = millis();
   mili_timer_heartbeat = millis();
 }
+
+String readString = "";
 void loop()
 {
 
@@ -136,14 +161,16 @@ void loop()
     crcfbrec.bytes[0] = rec_from_fb[sizeof(rec_from_fb)-2];
     crcfbrec.bytes[1] = rec_from_fb[sizeof(rec_from_fb)-1];
 
+     Serial.println("__" + String(rec_from_fb[0])+"_"+String(rec_from_fb[1])+"_" + String(rec_from_fb[2])+"_"+String(rec_from_fb[3])+"_"+String(rec_from_fb[4])+"_"+String(rec_from_fb[5])+"_"+String(rec_from_fb[6])+"_"+String(rec_from_fb[7])+"_" + "__");
     if(crcfbrec.value == crc_from_fb){
-
+byte rec_from_fb[rec_from_fb_len] = {0,0,0,0,0,0,0,0};
+   
   //SHOW HEARTBEAT
   if(millis()-mili_timer_heartbeat > HEARTBEAT_TOGGLE_TIME){
     mili_timer_heartbeat = millis();
     heartbeat_state = !heartbeat_state;
     digitalWrite(PIN_HEARTBEAT, heartbeat_state);
-    Serial.println("hb");
+  //  Serial.println("hb");
     }
 
   
@@ -152,7 +179,7 @@ if(send_to_fb[5] == 1 && rec_from_fb[4] == 1){
   send_to_fb[5] = 0;
   rec_from_fb[4] = 0;
   fb_reset_ok = true;
-  Serial.println("got reset state");
+  Serial.println("__gtr__");
   }
 
  //fb hat den reset status eingenommen nach NOTAUS
@@ -160,6 +187,7 @@ if(send_to_fb[5] == 1 && rec_from_fb[4] == 1){
   send_to_fb[4] = 0;
   send_to_fb[5] = 0;
   fb_reset_ok = true;
+  Serial.println("__gns__");
   }
 
   //  send_fb_data_toctl();
@@ -185,14 +213,14 @@ if(fb_reset_ok){
    
    //TODO TEST
    //activeates haptic feedback for penumatic slider
-   send_to_fb[2] = 1;
-   send_to_fb[3] = map(rec_from_fb[1],0,100,0,5)*20;
+   //send_to_fb[2] = 1;
+   //send_to_fb[3] = map(rec_from_fb[1],0,100,0,5)*20;
     //activeates haptic feedback for velocity slider
    //send_to_fb[0] = 1;
  //  send_to_fb[1] = map(rec_from_fb[0],0,100,0,10)*10;
    
- unsigned char stmp[8] = {vel_amount, ebrk_amount,pneu_brake , is_ebraking, rec_from_fb[3], 0, 0, 0};
- CAN.sendMsgBuf(CAN_ADDR_STATE_SEND, 0, 8, stmp);
+ //unsigned char stmp[8] = {vel_amount, ebrk_amount,pneu_brake , is_ebraking, rec_from_fb[3], 0, 0, 0};
+ //CAN.sendMsgBuf(CAN_ADDR_STATE_SEND, 0, 8, stmp);
    
    
   }
@@ -221,7 +249,33 @@ delay(10);
 
 mili_timer_last_packet = millis();
         
-    
+
+    while (Serial.available())
+    {
+        delay(3); //delay to allow buffer to fill
+        if (Serial.available() > 0)
+        {
+            char c = Serial.read(); //gets one byte from serial buffer
+            readString += c;        //makes the string readString
+        }
+}
+
+
+if (readString.length() > 0)
+    {
+  
+       
+  send_to_fb[1] = (byte)getValue(readString, '_', 1).toInt();
+  send_to_fb[0] = 1;
+
+  send_to_fb[3] = (byte)getValue(readString, '_', 2).toInt();
+  send_to_fb[2] = 1;
+  
+   Serial.println( send_to_fb[3]);
+        readString = "";
+        
+}
+
 }
 
 
@@ -232,7 +286,7 @@ mili_timer_last_packet = millis();
 //CHECK LAST PACKET TIME
           if(millis() - mili_timer_last_packet >PACKET_LOSS_TIMEOUT){
           errors_in_time++;
-          Serial.println("cpkg err");
+          Serial.println("__cpkg__");
           mili_timer_last_packet = millis();
           }
             
