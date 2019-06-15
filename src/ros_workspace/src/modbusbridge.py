@@ -30,6 +30,15 @@ def callbackui(data):
             client.write_coil(1,False, unit=1)
         else:
             client.write_coil(1,True, unit=1)
+    
+    if(tmp['event'] == 'ascch'):
+        print('ascch event')
+        # TODO
+        #rr = client.read_coils(1,1,unit=1)
+        #if( rr.bits[0]):
+        #    client.write_coil(1,False, unit=1)
+        #else:
+        #    client.write_coil(1,True, unit=1)
 
 def callbackfb(data):
     rospy.loginfo(rospy.get_caller_id() + "I heard %s", data.data)
@@ -85,14 +94,22 @@ if __name__ == '__main__':
                 pub.publish(json.dumps({
                     "kompressordruck": response.registers[4] / 100.0,
                     "kmh": response.registers[3] / 100.0,
-                    "kn":response.registers[15],
+                    "kn":response.registers[15]* 100.0, # anzeige ist in N
                     "breaklevel":100-response.registers[5],
                     "direction":response.registers[8],
                     "state_v0":response.registers[11],
                     "state_v1":response.registers[12],
                     "state_v2":response.registers[13],
                     "state_v3":response.registers[14],
-                    "ctlmode":response.registers[10] # 1= current 0=rpm
+                    "ctlmode":response.registers[10], # 1= current 0=rpm
+
+                    "fire_detcted": False,#true fals
+                    "temperature": 23.4,#grad c
+                    "batt_charge": -1.1,#A
+                    "asc_state":0, #0 off 1 active 2 triggered
+                    "asc_rest_dist": 0.0,
+                    "light_state": False,
+                    "emergencybrake":False
 
                 }))
 

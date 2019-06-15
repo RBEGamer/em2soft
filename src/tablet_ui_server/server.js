@@ -109,7 +109,14 @@ rosnodejs.initNode('/tablet_node')
                         state_v1: json.state_v1,
                         state_v2: json.state_v2,
                         state_v3: json.state_v3,
-                        ctlmode: ctl
+                        ctlmode: ctl,
+                        asc_state: json.asc_state,
+                        fire_detcted: json.fire_detcted,
+                        temperature: json.temperature,
+                        batt_charge: json.batt_charge,
+                        light_state: json.light_state,
+                        asc_rest_dist: json.asc_rest_dist,
+                        emergencybrake: json.emergencybrake
                     }
                 });
             }
@@ -159,6 +166,16 @@ io.on('connection', (socket) => {
         if (pub != null) {
             var msg = new std_msgs.String();
             msg.data = JSON.stringify({ 'event': 'ctlmode' });
+            pub.publish(msg);
+        }
+    });
+
+    socket.on('ascch', function () {
+        console.log('ctlmodech event');
+
+        if (pub != null) {
+            var msg = new std_msgs.String();
+            msg.data = JSON.stringify({ 'event': 'ascch' });
             pub.publish(msg);
         }
     });
