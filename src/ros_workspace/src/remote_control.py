@@ -7,6 +7,8 @@ import json
 
 import serial
 
+velsetpoint = 0
+breaksetpoint = 0
 
 ser = serial.Serial('/dev/ttyUSB0', 9600) # Establish the connection on a specific port
 
@@ -21,33 +23,58 @@ if __name__ == '__main__':
     try:
         rospy.init_node('remotecontrol', anonymous=True)
         rospy.Subscriber("fbstate", String, callback)
-        #rospy.Subscriber("uimsg", String, callbackui)
+
         rate = rospy.Rate(10) # 10hz
 
-       # client = ModbusTcpClient('192.168.1.17', port=5020)
-
         pub = rospy.Publisher('fromfb', String, queue_size=10)
-        #pub_fb = rospy.Publisher('fbstate', String, queue_size=10)
+
 
         while not rospy.is_shutdown():
             try:
-            #print(".")
+                #print(".")
                 line = ser.readline()
-                
-                
+
+
                 line = line.split("_")
                 print(line)
                 if(line[2] == "cpkg"):
                     print("cpkg")
                     pass
+                velsetpoint = line[2]
+                breaksetpoint = line[3]
 
-                pub.publish(json.dumps({
-                    "breaklevel":line[3],
-                     "velocity":line[2],
-                }))
+
+
+                was_error = False
+                if(breaksetpoint >80):
+                    breaksetpoint = 4
+                elif(breaksetpoint > 50):
+                    breaksetpoint = 3
+                elif(breaksetpoint > 30):
+                    breaksetpoint = 2
+                elif(breaksetpoint > 15):
+                    breaksetpoint = 1
+                elif(breaksetpoint <= 15):
+                    breaksetpoint = 0
+                else:
+                    was_error = True
+                    breaksetpoint = 4
+
+
+                if(was_error):
+                    rospy.logerror("INVALID breaksetpoint")
+                    print(breaksetpoint)
+
+
+
+                pub.publish(
+                    json.dumps({
+                        "breaklevel": breaksetpoint,
+                        "velocity": velsetpoint,
+                    }))
 
             except:
-                 rospy.loginfo("modbus_error")
+                rospy.loginfo("modbus_error")
             rate.sleep()
 
     except rospy.ROSInterruptException:

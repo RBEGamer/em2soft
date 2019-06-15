@@ -44,26 +44,7 @@ def callbackfb(data):
     rospy.loginfo(rospy.get_caller_id() + "I heard %s", data.data)
     tmp = json.loads(data.data)
     #print(tmp['breaklevel'])
-
-    brklvl = int(tmp['breaklevel'])
-    was_error = True
-    if(brklvl >80):
-        brklvl = 4
-    elif(brklvl > 50):
-        brklvl = 3
-    elif(brklvl > 30):
-        brklvl = 2
-    elif(brklvl > 15):
-        brklvl = 1
-    elif(brklvl <= 15):
-        brklvl = 0
-    else:
-        was_error = False
-        brklvl = 4
-        #%ODO SEND ERROR
-    print(brklvl)
-    if was_error:
-        client.write_register(0,brklvl, unit = 1)
+    client.write_register(0,int(tmp['breaklevel']), unit = 1) #WRITE BREAKLEVEL TO REISTER 0^
 
 
    

@@ -130,16 +130,12 @@
 
 
         <div class="row">
-
-
             <div class="col-md-12 col-md-offset-1" style="border:2px solid white;" id="alert_box">
                 &nbsp;
                 <div class="alert alert-primary" role="alert" id="alert_box">
                     NO MESSAGES AVARIABLE
                 </div>
             </div>
-
-
         </div>
 
 
@@ -240,7 +236,7 @@
                 socket.emit('ascch', { 'event': 'asc' });
             }
 
-            var gauge_two_mode = 1; //1=kn // 0=bar
+            var gauge_two_mode = "bar"; //bar kn batt temp
 
             function sw_gauge_mode_two(_btn_id) {
                 gauge_two_mode = _btn_id;
