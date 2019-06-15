@@ -117,17 +117,14 @@
 
             </div>
             <div class="col-md-6 col-md-offset-1 center-block text-center" style="border:2px solid white;">
-                <button type="button" class="btn btn-info" id="chgaugtwo_kn" onclick="sw_gauge_mode_two('kn')"> KN
+                <button type="button" class="btn btn-info" id="chgaugtwo_kn" onclick="sw_gauge_mode_two('kn');"> KN
                 </button>
 
-                <button type="button" class="btn btn-info" id="chgaugtwo_batt" onclick="sw_gauge_mode_two('batt')">
-                    BATTERY </button>
+                <button type="button" class="btn btn-info" id="chgaugtwo_batt" onclick="sw_gauge_mode_two('batt');">BATTERY</button>
 
-                <button type="button" class="btn btn-info" id="chgaugtwo_temp" onclick="sw_gauge_mode_two('temp')">
-                    TEMPERATURE </button>
+                <button type="button" class="btn btn-info" id="chgaugtwo_temp" onclick="sw_gauge_mode_two('temp');">TEMPERATURE</button>
 
-                <button type="button" class="btn btn-info" id="chgaugtwo_bar" onclick="sw_gauge_mode_two('bar')">
-                    PRESSURE </button>
+                <button type="button" class="btn btn-info" id="chgaugtwo_bar" onclick="sw_gauge_mode_two('bar');">PRESSURE</button>
             </div>
         </div>
 
@@ -236,7 +233,7 @@
                 socket.emit('dirch', { 'event': 'dirch' });
             }
 
-            function change_direction() {
+            function change_ctlmode() {
                 socket.emit('ctlmodech', { 'event': 'ctlmode' });
             }
             function change_asc() {
@@ -249,7 +246,7 @@
                 gauge_two_mode = _btn_id;
             }
 
-            var audio_alert = new Audio('/slow-spring-board.ogg');
+           
             function show_alert(_msg, _is_err = false) {
                 if (!_is_err) {
                     $("#alert_box").html("&nbsp; <div class='alert alert-primary' role='alert' id='alert_box'>" + _msg + "</div>");
@@ -376,6 +373,8 @@
 
 // TODO AKTIVER BUTTON FÄRBEN
 // TODO emergencybrake + button einbauen
+//TODO BATTER RÜCKSPEISUN EINBAUEN + RESET + AUF DEFAULT WERT SETZTEN
+
                 if (gauge_two_mode == "kn") {
                     $("#gauge_kn_text").html(String(_data.display.kn) + " N");
                     gauge_kn.set(_data.display.kn); // set actual value
