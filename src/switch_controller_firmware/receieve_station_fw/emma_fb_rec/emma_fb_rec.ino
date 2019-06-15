@@ -9,7 +9,7 @@
 //MCP_CAN CAN(MCP_CAN_CE_PIN);
 
 #define ERROR_NOTAUS_CHECK_TIMEOUT 555 //x fehler in 150ms
-#define NOTAUS_ERROR_COUNT 3 //fehler bis notaus
+#define NOTAUS_ERROR_COUNT 300 //fehler bis notaus
 #define PACKET_LOSS_TIMEOUT 80 //alle x ms muss ein paket von FB gesendet worden sein
 
 #define PIN_NOTAUS_RELAIS 2

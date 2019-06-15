@@ -74,7 +74,7 @@ int current_haptic_feedback = 100;
 
 
   void hf_max(){
-  current_haptic_feedback = 196;
+  current_haptic_feedback = 255;
   myPID.SetOutputLimits(0, current_haptic_feedback);
 myPID2.SetOutputLimits(0, current_haptic_feedback);
   myPID_BRK.SetOutputLimits(0, current_haptic_feedback);
@@ -108,9 +108,11 @@ const byte address[6] = "00002";
   //initialize the variables we're linked to
   Input_VEL = map(analogRead(PIN_INPUT_VEL), 0, 1024, 0, 100);
    Input_BRK = map(analogRead(PIN_INPUT_BRK), 0, 1024, 0, 100);
+   
   Setpoint_VEL = 50;
-  Setpoint_BRK = 10;
-
+  Setpoint_BRK = 50;
+rec_from_ctl[0] = 1;
+rec_from_ctl[2] = 1;
 
    analogWrite(PIN_OUTPUT_A, 0);
    analogWrite(PIN_OUTPUT_B, 0);
@@ -123,13 +125,39 @@ const byte address[6] = "00002";
     myPID_BRK.SetMode(AUTOMATIC);
     myPID2_BRK.SetMode(AUTOMATIC);
     startMillis = millis();
+
+    Serial.println("__BEGIN__");
 }
 
 
 bool wait_for_reset = false;
+
+String readString = "";
 void loop()
 {
 
+
+ while (Serial.available())
+    {
+        delay(3); //delay to allow buffer to fill
+        if (Serial.available() > 0)
+        {
+            char c = Serial.read(); //gets one byte from serial buffer
+            readString += c;        //makes the string readString
+        }
+}
+
+
+if (readString.length() > 0)
+    {
+  
+         Setpoint_VEL = getValue(readString, '_', 1).toInt();
+  Setpoint_BRK = getValue(readString, '_', 2).toInt();
+rec_from_ctl[0] = 1;
+rec_from_ctl[2] = 1;
+
+        
+}
 
 
 
@@ -168,7 +196,7 @@ send_to_ctl[1] = Input_BRK;
 if (millis() - startMillis >= 50)  //test whether the period has elapsed
   {
     radio.stopListening();
-    delay(10);
+    delay(20);
      crc_data crcfbsend;
     crcfbsend.value = crc16(send_to_ctl,sizeof(send_to_ctl)-2);
     send_to_ctl[send_to_ctl_len-2] = crcfbsend.bytes[0];
@@ -210,19 +238,6 @@ if (millis() - startMillis >= 50)  //test whether the period has elapsed
           analogWrite(PIN_OUTPUT_B_BRK, 0);
           }
           
-
-          //wait for sliders in reset postion
-         // if(rec_from_ctl[5] == 1){
-         //   if(!wait_for_reset){Serial.println("got wtr request");hf_max();}
-         //   wait_for_reset  = true;
-         //   send_to_ctl[4] = 0;
-         //   Setpoint_VEL = 50;
-        //    Setpoint_BRK = 100;
-        //   }else{
-        //   wait_for_reset =false;
-        //   send_to_ctl[4] = 0;
-        //    }
-
           //led show notaus
           if(rec_from_ctl[4]  >0){
             digitalWrite(PIN_LED_NOTAUS,HIGH);
@@ -237,12 +252,13 @@ if (millis() - startMillis >= 50)  //test whether the period has elapsed
 
    
 
-    
+Serial.println("_"+String(Input_BRK) + "_" + String(Setpoint_BRK) + "_"+String(Input_VEL) + "_" + String(Setpoint_VEL) + "_" + String(rec_from_ctl[2]) + "_" + String(rec_from_ctl[0]) + "_");
 
-//if(wait_for_reset|| rec_from_ctl[2] > 0){
+if(rec_from_ctl[2] > 0){
 if(abs(Setpoint_BRK-Input_BRK)< 3){
    analogWrite(PIN_OUTPUT_A_BRK, 0);
    analogWrite(PIN_OUTPUT_B_BRK, 0);
+   rec_from_ctl[2] = 0;
   }else if((Setpoint_BRK-Input_BRK)> 0){ 
     myPID_BRK.Compute();
    analogWrite(PIN_OUTPUT_A_BRK, 0);
@@ -252,18 +268,16 @@ if(abs(Setpoint_BRK-Input_BRK)< 3){
    analogWrite(PIN_OUTPUT_B_BRK, 0);
    analogWrite(PIN_OUTPUT_A_BRK, Output_BRK);
 }  
-//}else{
-//   analogWrite(PIN_OUTPUT_A_BRK, 0);
-//   analogWrite(PIN_OUTPUT_B_BRK, 0);
-//   }
+}
 
 
 
 //PID CTL FOR VELOCITY SLIDER
-//if(wait_for_reset || rec_from_ctl[0] > 0){
+if(rec_from_ctl[0] > 0){
 if(abs(Setpoint_VEL-Input_VEL)< 3){
    analogWrite(PIN_OUTPUT_A, 0);
    analogWrite(PIN_OUTPUT_B, 0);
+   rec_from_ctl[0] = 0;
   } else if((Setpoint_VEL-Input_VEL)> 0){ 
     myPID.Compute();
    analogWrite(PIN_OUTPUT_A, 0);
@@ -273,10 +287,26 @@ if(abs(Setpoint_VEL-Input_VEL)< 3){
    analogWrite(PIN_OUTPUT_B, 0);
    analogWrite(PIN_OUTPUT_A, abs(Output_VEL));
 }  
- // }else{
- //    analogWrite(PIN_OUTPUT_A_BRK, 0);
- //  analogWrite(PIN_OUTPUT_B_BRK, 0);}
+ }
 
 
+}
 
+
+String getValue(String data, char separator, int index)
+{
+    int found = 0;
+    int strIndex[] = {
+        0, -1};
+    int maxIndex = data.length() - 1;
+    for (int i = 0; i <= maxIndex && found <= index; i++)
+    {
+        if (data.charAt(i) == separator || i == maxIndex)
+        {
+            found++;
+            strIndex[0] = strIndex[1] + 1;
+            strIndex[1] = (i == maxIndex) ? i + 1 : i;
+        }
+    }
+    return found > index ? data.substring(strIndex[0], strIndex[1]) : "";
 }
