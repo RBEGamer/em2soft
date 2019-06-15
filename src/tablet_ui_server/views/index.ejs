@@ -47,25 +47,36 @@
 
 
         <div class="row" style="border:2px solid white;">
-            <div class="col-md-2 col-md-offset-1">
-                &nbsp;
+
+           
+            <div class="col-md-1 col-md-offset-1">
+                <img class="img-responsive" src="/img/zusi_icons/np_error.png" width="75" style="border:3px solid white;"
+                    id="img_v0" />
             </div>
-            <div class="col-md-2 col-md-offset-1">
-                <img class="img-responsive" src="/img/zusi_icons/np_error.png" width="100" style="border:3px solid white;"
-                    id="img_alert" />
+            <div class="col-md-1">
+                <img class="img-responsive" src="/img/zusi_icons/np_error.png" width="75" style="border:3px solid white;"
+                    id="img_v1"/>
             </div>
-            <div class="col-md-2">
-                <img class="img-responsive" src="/img/zusi_icons/np_error.png" width="100" style="border:3px solid white;"
-                    id="img_light"/>
+            <div class="col-md-1">
+                <img class="img-responsive" src="/img/zusi_icons/np_error.png" width="75" style="border:3px solid white;"
+                    id="img_v2" />
             </div>
-            <div class="col-md-2">
-                <img class="img-responsive" src="/img/zusi_icons/np_error.png" width="100" style="border:3px solid white;"
-                    id="img_motor" />
+             <div class="col-md-1">
+                <img class="img-responsive" src="/img/zusi_icons/np_error.png" width="75" style="border:3px solid white;"
+                    id="img_v3" />
+            </div>
+            
+
+            <div class="col-md-1">
+                <img class="img-responsive" src="/img/zusi_icons/np_error.png" width="75" style="border:3px solid white;"
+                    id="img_direction" onclick="change_direction()" />
             </div>
 
-            <div class="col-md-2 col-md-offset-1">
-                &nbsp;
+            <div class="col-md-1">
+                <img class="img-responsive" src="/img/zusi_icons/np_error.png" width="75" style="border:3px solid white;"
+                    id="img_ctlmode" onclick="change_ctlmode()" />
             </div>
+
         </div>
 
 
@@ -86,13 +97,23 @@
 
         <div class="row" style="border:2px solid white;">
             <div class="col-md-6 col-md-offset-1 center-block text-center" style="border:2px solid white;">
-            <span class="gauge_text" id="gauge_kmh_text">0 KMH</span>
+            <span class="gauge_text" id="gauge_kmh_text">0</span>
             </div>
             <div class="col-md-6 col-md-offset-1 center-block text-center" style="border:2px solid white;">
-                <span class="gauge_text" id="gauge_kn_text">0 KN</span>
+                <span class="gauge_text" id="gauge_kn_text">0</span>
             </div>
         </div>
 
+
+        <div class="row" style="border:2px solid white;">
+            <div class="col-md-6 col-md-offset-1 center-block text-center" style="border:2px solid white;">
+            
+          
+            </div>
+            <div class="col-md-6 col-md-offset-1 center-block text-center" style="border:2px solid white;">
+                <button type="button" class="btn btn-info" id="chgaugtwo" onclick="sw_gauge_mode_two()"> KN </button>
+            </div>
+        </div>
 
 
         <div class="row">
@@ -128,11 +149,30 @@
 
 
         <script>
-
-            //SET TO BG IMG_SIZE
-
-
             var socket = null;
+            //SET TO BG IMG_SIZE
+            function change_direction(){
+                socket.emit('dirch',{'event':'dirch'});
+            }
+
+             function change_direction(){
+                socket.emit('ctlmodech',{'event':'ctlmode'});
+            }
+
+
+            var gauge_two_mode = 1; //1=kn // 0=bar
+
+            function sw_gauge_mode_two(){
+                //chgaugtwo
+                if(gauge_two_mode == 0){
+                    gauge_two_mode = 1;
+                    $("#chgaugtwo").text("KOMPRESSORDRUCK");
+                }else{
+                    gauge_two_mode = 0;
+                    $("#chgaugtwo").text("KN");
+                }
+            }
+            
             var audio_alert = new Audio('/slow-spring-board.ogg');
             function show_alert(_msg, _is_err = false) {
                 if (!_is_err) {
@@ -157,27 +197,127 @@
             }
 
 var old_alert_msg = "";
-
+var kmhsum = 0;
+var kmh_val = [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+]
+var kmhindex = 0;
+var nullcounter = 0;
+var fahrtrichtungtext = "---";
+var chmodeicon_switched = false;
 
             function parse_state_data(_data) {
 
                 if (_data == null || _data.display == null) {
                     show_alert("DATA STATE PARSING FAILED")
                 }
+                console.log(_data);
                 //SET STATUS ICONS
-                if (_data.display.alert != undefined && _data.display.alert != null) { switch_image("alert", _data.display.alert); } else { switch_image("alert", null); }
-                if (_data.display.light != undefined && _data.display.light != null) { switch_image("light", _data.display.light); } else { switch_image("light", null); }
-                if (_data.display.motor != undefined && _data.display.motor != null) { switch_image("motor", _data.display.motor); } else { switch_image("motor", null); }
-
+              //  if (_data.display.alert != undefined && _data.display.alert != null) { switch_image("alert", _data.display.alert); } else { switch_image("alert", null); }
+             
                 //UPDATE GAUGES
-                if (_data.display.curr_kn != undefined && _data.display.curr_kn != null) {
-                    gauge_kn.set(_data.display.curr_kn); // set actual value
-                    $("#gauge_kn_text").html(String(_data.display.curr_kn) + "KN");
+               
+                    if(_data.display.state_v0 != undefined && _data.display.state_v0 != null){
+                        if(_data.display.state_v0){
+                            $("#img_v0").attr("src","/img/zusi_icons/v1on.png");
+                        }else{
+                            $("#img_v0").attr("src","/img/zusi_icons/v1off.png");
+                        }
+                    }else{
+                        $("#img_v0").attr("src","/img/zusi_icons/np_error.png");
+                    }
+
+                    if(_data.display.state_v1 != undefined && _data.display.state_v1 != null){
+                        if(_data.display.state_v1){
+                            $("#img_v1").attr("src","/img/zusi_icons/v2on.png");
+                        }else{
+                            $("#img_v1").attr("src","/img/zusi_icons/v2off.png");
+                        }
+                    }else{
+                        $("#img_v1").attr("src","/img/zusi_icons/np_error.png");
+                    }
+
+                    if(_data.display.state_v2 != undefined && _data.display.state_v2 != null){
+                        if(_data.display.state_v2){
+                            $("#img_v2").attr("src","/img/zusi_icons/v3on.png");
+                        }else{
+                            $("#img_v2").attr("src","/img/zusi_icons/v3off.png");
+                        }
+                    }else{
+                        $("#img_v2").attr("src","/img/zusi_icons/np_error.png");
+                    }
+
+                    if(_data.display.state_v3 != undefined && _data.display.state_v3 != null){
+                        if(_data.display.state_v3){
+                            $("#img_v3").attr("src","/img/zusi_icons/v4on.png");
+                        }else{
+                            $("#img_v3").attr("src","/img/zusi_icons/v4off.png");
+                        }
+                    }else{
+                        $("#img_v3").attr("src","/img/zusi_icons/np_error.png");
+                    }
+
+                    if(gauge_two_mode == 1){
+                        $("#gauge_kn_text").html(String(_data.display.kn) + " KN");
+                        gauge_kn.set(_data.display.kn); // set actual value
+                    }else if(gauge_two_mode == 0){
+                        $("#gauge_kn_text").html(String(_data.display.kompressordruck) + " BAR");
+                        gauge_kn.set(_data.display.kompressordruck); // set actual value
+                    }else{
+                        $("#gauge_kn_text").html(String(_data.display.kn) + "---");
+                    }
+                   
+
+
+
+                    if(_data.display.ctlmode != undefined && _data.display.ctlmode != null){
+                        if(_data.display.ctlmode == 1){
+                            $("#img_ctlmode").attr("src","/img/zusi_icons/ctl_curr.png");
+
+                            if(!chmodeicon_switched){
+                            gauge_two_mode = true;
+                            chmodeicon_switched = true;
+                            }
+
+
+                        }else{
+                            $("#img_ctlmode").attr("src","/img/zusi_icons/ctl_rpm.png");
+                            chmodeicon_switched = false;
+                        }
+
+                        
+                    }else{
+                        $("#img_ctlmode").attr("src","/img/zusi_icons/np_error.png");
+                    }
+                
+                if (_data.display.kmh != undefined && _data.display.kmh != null) {
+                        gauge_kmh.set( _data.display.kmh);
+                        $("#gauge_kmh_text").html(String( _data.display.kmh) + " KMH");
                 }
-                if (_data.display.curr_kmh != undefined && _data.display.curr_kmh != null) {
-                    gauge_kmh.set(_data.display.curr_kmh); // set actual value
-                    $("#gauge_kmh_text").html(String(_data.display.curr_kmh) + "KMH");
+
+
+                if(_data.display.direction == 1){
+                    fahrtrichtungtext = "FORWARD";
+                    $("#img_direction").attr("src","/img/zusi_icons/forward.png");
+                  
+                }else if(_data.display.direction == 0){
+                    fahrtrichtungtext = "BACKWARD";
+                    $("#img_direction").attr("src","/img/zusi_icons/backward.png");
+                }else{
+                    fahrtrichtungtext = "UNKNOWN";
+                    $("#img_direction").attr("src", "/img/zusi_icons/np_error.png");
                 }
+              //  show_alert(fahrtrichtungtext, !_data.display.direction);
+
 
                 //UPDATE ALERT TEXT
                 if (_data.display.alert_msg != undefined && _data.display.alert_msg != null ) {

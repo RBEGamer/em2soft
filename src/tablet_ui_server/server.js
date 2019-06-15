@@ -67,58 +67,20 @@ server.listen(port, function () {
     console.log('Server listening at port %d', port);
 });
 
+var rosnode = null;
+var pub = null;
 
-
-
-//setInterval(() => {
-//  client.publish("heartbeat_webui", String(Math.round(new Date().getTime() / 1000)));
-//}, 1000);
-
-//client.on('connect', function () {
-//   client.subscribe('status', function (err) {
-//     if (!err) {
-
-//   }
-// });
-//});
-
-//client.on('message', function (topic, message) {
-// message is Buffer
-//  console.log(message.toString());
-
-//  var json = message;
-//  try
-//{
-//        json = JSON.parse(message);
-//}
-//catch(e)
-//{
-
-//}
-
-//  io.emit('broadcast', json);
-// io.emit('broadcast', {
-//   display: {
-//     alert: 0,
-//   motor: 1,
-// light: 1,
-
-//     curr_kn: 0,
-//   curr_kmh: 0
-
-//   }
-// });
-
-
-//})
 
 // Register node with ROS master
 rosnodejs.initNode('/tablet_node')
     .then((rosNode) => {
+        rosnode = rosNode;
+
+        pub = rosnode.advertise('/uimsg', std_msgs.String)
         // Create ROS subscriber on the 'chatter' topic expecting String messages
-        let sub = rosNode.subscribe('motorrealstats_node', std_msgs.String,
+        let sub = rosNode.subscribe('state', std_msgs.String,
             (data) => { // define callback execution
-                rosnodejs.log.info('broadcast I heard: [' + data.data + ']');
+                // rosnodejs.log.info('broadcast I heard: [' + data.data + ']');
 
                 var json = data.data;
                 try {
@@ -126,13 +88,28 @@ rosnodejs.initNode('/tablet_node')
                 } catch (error) {
 
                 }
+
+                var ctl = 0;
+                if (json.ctlmode) {
+                    ctl = 0;
+                } else {
+                    ctl = 1;
+                }
                 io.emit('broadcast', {
                     display: {
                         alert: 0,
                         motor: 1,
                         light: 1,
-                        curr_kn: 0,
-                        curr_kmh: json.rps
+                        kn: json.kn,
+                        kmh: json.kmh,
+                        kompressordruck: json.kompressordruck,
+                        breaklevel: json.breaklevel,
+                        direction: json.direction,
+                        state_v0: json.state_v0,
+                        state_v1: json.state_v1,
+                        state_v2: json.state_v2,
+                        state_v3: json.state_v3,
+                        ctlmode: ctl
                     }
                 });
             }
@@ -156,10 +133,36 @@ app.get('/', function (req, res) {
 
 
 
+
 io.on('connection', (socket) => {
     socket.on('disconnect', function () {
         console.log('user disconnected');
     });
+
+
+
+    socket.on('dirch', function () {
+        console.log('dirch event');
+
+        if (pub != null) {
+            var msg = new std_msgs.String();
+            msg.data = JSON.stringify({ 'event': 'dirch' });
+
+            pub.publish(msg);
+        }
+    });
+
+
+    socket.on('ctlmodech', function () {
+        console.log('ctlmodech event');
+
+        if (pub != null) {
+            var msg = new std_msgs.String();
+            msg.data = JSON.stringify({ 'event': 'ctlmode' });
+            pub.publish(msg);
+        }
+    });
+
 });
 //TODO BUTTONS FÜR MANUELL SC_HALTEN EINBAUEN
 
