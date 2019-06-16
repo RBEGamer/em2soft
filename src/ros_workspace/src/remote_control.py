@@ -44,7 +44,7 @@ if __name__ == '__main__':
                 breaksetpoint = line[3]
 
 
-
+                #CALC BREAKLEVEL
                 was_error = False
                 if(breaksetpoint >80):
                     breaksetpoint = 4
