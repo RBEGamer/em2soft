@@ -41,12 +41,14 @@ def callbackui(data):
         #    client.write_coil(1,True, unit=1)
     if (tmp['event'] == 'kompmode'):
         print('kompmode event')
+        #response.registers[22] 1/0/2 schreiben
 
     if (tmp['event'] == 'embreak'):
         print('embreak event')
 
     if (tmp['event'] == 'lightmode'):
         print('lightmode event')
+        #response.registers[21] 1/0 schreiben
 
 
 
