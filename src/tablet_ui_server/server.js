@@ -118,7 +118,9 @@ rosnodejs.initNode('/tablet_node')
                         asc_rest_dist: json.asc_rest_dist,
                         emergencybrake: json.emergencybrake,
                         kompressorstate: json.kompressorstate,
-                        lightstate: json.lightstate
+                        lightstate: json.lightstate,
+                        kompressor_power_state:json.kompressor_power_state,
+                        emergencybrakereset:json.emergencybrakereset
                     }
                 });
             }
@@ -259,6 +261,17 @@ io.on('connection', (socket) => {
             pub.publish(msg);
         }
     });
+
+
+    socket.on('brkloes', function () {
+        console.log('brkloes event');
+        if (pub != null) {
+            var msg = new std_msgs.String();
+            msg.data = JSON.stringify({ 'event': 'brkloes' });
+            pub.publish(msg);
+        }
+    });
+    
 
 });
 //TODO BUTTONS FÜR MANUELL SC_HALTEN EINBAUEN

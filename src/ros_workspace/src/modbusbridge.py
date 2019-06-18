@@ -71,6 +71,11 @@ def callbackui(data):
         #response.registers[21] 1/0 schreiben
 
 
+    if (tmp['event'] == 'brkloes'):
+        print('brkloes event')
+        #client.write_register(0,4, unit = 1)#TODO
+
+
 
 
 
@@ -124,7 +129,8 @@ if __name__ == '__main__':
                     "batt_charge": -1.1,#A
                     "asc_state":response.registers[20], #0 off 1 active 2 triggered
                     "asc_rest_dist": response.registers[19],
-                    "emergencybrake":False,
+                    "emergencybrake":0, # 0 nicht 1 ausgeloesst
+                    "emergencybrakereset":0,# 1 warte auf release
                     "kompressorstate":response.registers[17], # 0 = off  1= on 2= auto
                     "lightstate": response.registers[21],
                     "kompressor_power_state":response.registers[16]#0=off 1=on

@@ -46,53 +46,59 @@
 
 
             <div class="col-md-1 col-md-offset-1">
-                <img class="img-responsive" src="/img/new_icons/icon_150x150_brake_1_undef.png" width="75"
+                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
                     style="border:3px solid white;" id="img_v0" onclick="change_breakingstep(1);"/>
             </div>
             <div class="col-md-1">
-                <img class="img-responsive" src="/img/new_icons/icon_150x150_brake_2_undef.png" width="75"
+                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
                     style="border:3px solid white;" id="img_v1" onclick="change_breakingstep(2);"/>
             </div>
             <div class="col-md-1">
-                <img class="img-responsive" src="/img/new_icons/icon_150x150_brake_3_undef.png" width="75"
+                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
                     style="border:3px solid white;" id="img_v2" onclick="change_breakingstep(3);"/>
             </div>
             <div class="col-md-1">
-                <img class="img-responsive" src="/img/new_icons/icon_150x150_brake_4_undef.png" width="75"
+                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
                     style="border:3px solid white;" id="img_v3" onclick="change_breakingstep(4);"/>
             </div>
 
             <div class="col-md-1">
-                <img class="img-responsive" src="/img/zusi_icons/np_error.png" width="75"
+                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
                     style="border:3px solid white;" id="img_fire" />
             </div>
 
             <div class="col-md-1">
-                <img class="img-responsive" src="/img/zusi_icons/np_error.png" width="75"
+                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
                     style="border:3px solid white;" id="img_direction" onclick="change_direction()" />
             </div>
 
             <div class="col-md-1">
-                <img class="img-responsive" src="/img/new_icons/icon_150x150_mode_undef.png" width="75"
+                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
                     style="border:3px solid white;" id="img_ctlmode" onclick="change_ctlmode()" />
             </div>
 
 
             <div class="col-md-1">
-                <img class="img-responsive" src="/img/new_icons/icon_150x150_autostop_undef.png" width="75"
+                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
                     style="border:3px solid white;" id="img_asc" onclick="change_asc()" />
             </div>
 
 
              <div class="col-md-1">
-                <img class="img-responsive" src="/img/new_icons/icon_150x150_comp_undef.png" width="75"
+                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
                     style="border:3px solid white;" id="img_komp" onclick="change_kompressormode()" />
             </div>
 
 
             <div class="col-md-1">
-                <img class="img-responsive" src="/img/new_icons/icon_150x150_lights_A_undef.png" width="75"
+                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
                     style="border:3px solid white;" id="img_light" onclick="change_lightmode()" />
+            </div>
+
+
+            <div class="col-md-1">
+                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
+                    style="border:3px solid white;" id="img_brkloes" onclick="change_brkloes()" />
             </div>
 
         </div>
@@ -144,8 +150,7 @@
         <div class="row">
             <div class="col-md-12 col-md-offset-1" style="border:2px solid white;" id="alert_box">
                
-                <img class="img-responsive" src="/img/new_icons/icon_512x128_Notbremse.png" width="75"
-                    style="border:3px solid white;" id="img_komp" onclick="send_notbremse()" />
+                <img class="img-responsive" src="/img/new_icons/icon_512x128_Notbremse.png"  id="img_notbremse" onclick="send_notbremse()" />
                 
             </div>
         </div>
@@ -278,6 +283,10 @@
                 socket.emit('lightmode', { 'event': 'lightmode' });
             }
 
+            function change_brkloes(){
+                socket.emit('brkloes', { 'event': 'brkloes' });
+                // TODO !!!
+            }
             var gauge_two_mode = "bar"; //bar kn batt temp
 
             function sw_gauge_mode_two(_btn_id) {
@@ -336,12 +345,12 @@
 
                 if (_data.display.lightstate != undefined && _data.display.lightstate != null) {
                     if (_data.display.lightstate) {
-                        $("#img_light").attr("src", "/img/new_icons/icon_150x150_lights_A_on_front.png");
+                        $("#img_light").attr("src", "/img/new_icons/icon_150x150_lights_A_on.png");
                     } else{
                         $("#img_light").attr("src", "/img/new_icons/icon_150x150_lights_A_off.png");
                     }
                 } else {
-                    $("#img_light").attr("src", "/img/new_icons/icon_150x150_lights_A_undef.png");
+                    $("#img_light").attr("src", "/img/new_icons/icon_150x150_undef.png");
                 }
 
                 if (_data.display.kompressorstate != undefined && _data.display.kompressorstate != null) {
@@ -350,10 +359,15 @@
                     } else if (_data.display.kompressorstate == 0) {
                         $("#img_komp").attr("src", "/img/new_icons/icon_150x150_comp_off.png");
                     }else{
-                        $("#img_komp").attr("src", "/img/new_icons/icon_150x150_comp_on_auto.png");
+                        if(_data.display.kompressor_power_state){
+                            $("#img_komp").attr("src", "/img/new_icons/icon_150x150_comp_on.png");
+                        }else{
+                            $("#img_komp").attr("src", "/img/new_icons/icon_150x150_comp_on_auto.png");
+                        }
+                       
                     }
                 } else {
-                    $("#img_komp").attr("src", "/img/new_icons/icon_150x150_comp_undef.png");
+                    $("#img_komp").attr("src", "/img/new_icons/icon_150x150_undef.png");
                 }
 
 
@@ -365,7 +379,7 @@
                         $("#img_v0").attr("src", "/img/new_icons/icon_150x150_brake_1_off.png");
                     }
                 } else {
-                    $("#img_v0").attr("src", "/img/new_icons/icon_150x150_brake_1_undef.png");
+                    $("#img_v0").attr("src", "/img/new_icons/icon_150x150_undef.png");
                 }
 
                 if (_data.display.state_v1 != undefined && _data.display.state_v1 != null) {
@@ -375,7 +389,7 @@
                         $("#img_v1").attr("src", "/img/new_icons/icon_150x150_brake_2_off.png");
                     }
                 } else {
-                    $("#img_v1").attr("src", "/img/new_icons/icon_150x150_brake_2_undef.png");
+                    $("#img_v1").attr("src", "/img/new_icons/icon_150x150_undef.png");
                 }
 
                 if (_data.display.state_v2 != undefined && _data.display.state_v2 != null) {
@@ -385,7 +399,7 @@
                         $("#img_v2").attr("src", "/img/new_icons/icon_150x150_brake_3_off.png");
                     }
                 } else {
-                    $("#img_v2").attr("src", "/img/new_icons/icon_150x150_brake_3_undef.png");
+                    $("#img_v2").attr("src", "/img/new_icons/icon_150x150_undef.png");
                 }
 
                 if (_data.display.state_v3 != undefined && _data.display.state_v3 != null) {
@@ -395,11 +409,27 @@
                         $("#img_v3").attr("src", "/img/new_icons/icon_150x150_brake_4_off.png");
                     }
                 } else {
-                    $("#img_v3").attr("src", "/img/new_icons/icon_150x150_brake_4_undef.png");
+                    $("#img_v3").attr("src", "/img/new_icons/icon_150x150_undef.png");
                 }
 
 
+                if (_data.display.emergencybrake != undefined && _data.display.emergencybrake != null) {
+                    if (_data.display.emergencybrake == 0) {
+                        $("#img_brkloes").attr("src", "/img/new_icons/icon_150x150_Notbremse_bereit.png");
+                    } else if (_data.display.emergencybrake == 1) {
 
+                        if (_data.display.emergencybrakereset == 1) {
+                            $("#img_brkloes").attr("src", "/img/new_icons/icon_150x150_Notbremse_Rueckstellen.png");
+                        }else{
+                            $("#img_brkloes").attr("src", "/img/new_icons/icon_150x150_Notbremse_aktiv.png");
+                        }
+                    }
+                } else {
+                    $("#img_brkloes").attr("src", "/img/new_icons/icon_150x150_undef.png");
+                }
+
+
+                
 
                 if (_data.display.fire_detcted != undefined && _data.display.fire_detcted != null) {
                     if (_data.display.fire_detcted) {
@@ -423,7 +453,7 @@
                         $("#img_fire").attr("src", "/img/zusi_icons/nofire.png");
                     }
                 } else {
-                    $("#img_fire").attr("src", "/img/zusi_icons/np_error.png");
+                    $("#img_fire").attr("src", "/img/new_icons/icon_150x150_undef.png");
                 }
 
 
@@ -444,7 +474,7 @@
                         $("#dist_left_box_cont").html("");
                     }
                 } else {
-                    $("#img_asc").attr("src", "/img/new_icons/icon_150x150_autostop_undef.png");
+                    $("#img_asc").attr("src", "/img/new_icons/icon_150x150_undef.png");
                 }
 
 
@@ -514,7 +544,7 @@
                         chmodeicon_switched = false;
                     }
                 } else {
-                    $("#img_ctlmode").attr("src", "/img/new_icons/icon_150x150_mode_undef.png");
+                    $("#img_ctlmode").attr("src", "/img/new_icons/icon_150x150_undef.png");
                 }
 
 
@@ -526,14 +556,14 @@
 
                 if (_data.display.direction == 1) {
                     fahrtrichtungtext = "FORWARD";
-                    $("#img_direction").attr("src", "/img/zusi_icons/forward.png");
+                    $("#img_direction").attr("src", "/img/new_icons/icon_150x150_Notbremse_vorwaerts.png");
 
                 } else if (_data.display.direction == 0) {
                     fahrtrichtungtext = "BACKWARD";
-                    $("#img_direction").attr("src", "/img/zusi_icons/backward.png");
+                    $("#img_direction").attr("src", "/img/new_icons/icon_150x150_direction_backwards.png");
                 } else {
                     fahrtrichtungtext = "UNKNOWN";
-                    $("#img_direction").attr("src", "/img/zusi_icons/np_error.png");
+                    $("#img_direction").attr("src", "/img/new_icons/icon_150x150_undef.png");
                 }
                 //  show_alert(fahrtrichtungtext, !_data.display.direction);
 
