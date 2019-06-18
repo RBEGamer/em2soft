@@ -480,17 +480,17 @@
 
                 if (_data.display.ctlmode != undefined && _data.display.ctlmode != null) {
                     if (_data.display.ctlmode == 1) {
-                        $("#img_ctlmode").attr("src", "/img/zusi_icons/ctl_curr.png");
+                        $("#img_ctlmode").attr("src", "/img/new_icons/icon_150x150_mode_current.png");
                         if (!chmodeicon_switched) {
                             sw_gauge_mode_two('kn');
                             chmodeicon_switched = true;
                         }
                     } else {
-                        $("#img_ctlmode").attr("src", "/img/zusi_icons/ctl_rpm.png");
+                        $("#img_ctlmode").attr("src", "/img/new_icons/icon_150x150_mode_rpm.png");
                         chmodeicon_switched = false;
                     }
                 } else {
-                    $("#img_ctlmode").attr("src", "/img/zusi_icons/np_error.png");
+                    $("#img_ctlmode").attr("src", "/img/new_icons/icon_150x150_mode_undef.png");
                 }
 
 
