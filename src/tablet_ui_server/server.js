@@ -206,7 +206,6 @@ io.on('connection', (socket) => {
 
     socket.on('lightmode', function () {
         console.log('lightmode event');
-
         if (pub != null) {
             var msg = new std_msgs.String();
             msg.data = JSON.stringify({ 'event': 'lightmode' });
@@ -215,8 +214,51 @@ io.on('connection', (socket) => {
     });
 
 
+
+    socket.on('brkstep0', function () {
+        console.log('brkstep0 event');
+        if (pub != null) {
+            var msg = new std_msgs.String();
+            msg.data = JSON.stringify({ 'event': 'brkstep0' });
+            pub.publish(msg);
+        }
+    });
+
+    socket.on('brkstep1', function () {
+        console.log('brkstep1 event');
+        if (pub != null) {
+            var msg = new std_msgs.String();
+            msg.data = JSON.stringify({ 'event': 'brkstep1' });
+            pub.publish(msg);
+        }
+    });
     
-    
+    socket.on('brkstep2', function () {
+        console.log('brkstep2 event');
+        if (pub != null) {
+            var msg = new std_msgs.String();
+            msg.data = JSON.stringify({ 'event': 'brkstep2' });
+            pub.publish(msg);
+        }
+    });
+
+    socket.on('brkstep3', function () {
+        console.log('brkstep3 event');
+        if (pub != null) {
+            var msg = new std_msgs.String();
+            msg.data = JSON.stringify({ 'event': 'brkstep3' });
+            pub.publish(msg);
+        }
+    });
+
+    socket.on('brkstep4', function () {
+        console.log('brkstep4 event');
+        if (pub != null) {
+            var msg = new std_msgs.String();
+            msg.data = JSON.stringify({ 'event': 'brkstep4' });
+            pub.publish(msg);
+        }
+    });
 
 });
 //TODO BUTTONS FÜR MANUELL SC_HALTEN EINBAUEN

@@ -48,6 +48,24 @@ def callbackui(data):
 
     if (tmp['event'] == 'lightmode'):
         print('lightmode event')
+
+
+
+    if (tmp['event'] == 'brkstep0'):
+        print('brkstep0 event')
+        client.write_register(0,0, unit = 1)
+     if (tmp['event'] == 'brkstep1'):
+        print('brkstep0 event')
+        client.write_register(0,1, unit = 1)
+     if (tmp['event'] == 'brkstep2'):
+        print('brkstep0 event')
+        client.write_register(0,2, unit = 1)
+     if (tmp['event'] == 'brkstep3'):
+        print('brkstep0 event')
+        client.write_register(0,3, unit = 1)
+     if (tmp['event'] == 'brkstep4'):
+        print('brkstep0 event')
+        client.write_register(0,4, unit = 1)
         #response.registers[21] 1/0 schreiben
 
 

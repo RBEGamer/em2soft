@@ -284,7 +284,21 @@
                 gauge_two_mode = _btn_id;
             }
 
-           
+            function change_breakingstep(_var) {
+
+                if(_var == 0){
+                     socket.emit('brkstep0', { 'event': 'brkstep0' });
+                }else  if(_var == 1){
+                     socket.emit('brkstep1', { 'event': 'brkstep1' });
+                }else  if(_var == 2){
+                     socket.emit('brkstep2', { 'event': 'brkstep2' });
+                }else  if(_var == 3){
+                     socket.emit('brkstep3', { 'event': 'brkstep3' });
+                }else  if(_var == 4){
+                     socket.emit('brkstep4', { 'event': 'brkstep4' });
+                }
+              
+            }
             function show_alert(_msg, _is_err = false) {
                 if (!_is_err) {
                     $("#alert_box").html("&nbsp; <div class='alert alert-primary' role='alert' id='alert_box'>" + _msg + "</div>");
