@@ -432,24 +432,24 @@
                 if (gauge_two_mode == "kn") {
                     $("#gauge_kn_text").html(String(_data.display.kn) + " N");
                     gauge_kn.set(_data.display.kn); // set actual value
-                    opts_kn.colorStart = "6b4e2c";
-                    opts_kn.colorStop = "4a9a41";
+                    opts_kn.colorStart = "#6B4E2C";
+                    opts_kn.colorStop = "#4A9A41";
                     gauge_kn.setOptions(opts_kn);
                     gauge_kn.maxValue = 1000.0;
                     gauge_kn.setMinValue(-1000.0);
                 } else if (gauge_two_mode == "bar") {
                     $("#gauge_kn_text").html(String(_data.display.kompressordruck) + " BAR");
                     gauge_kn.set(_data.display.kompressordruck); // set actual value
-                    opts_kn.colorStart = "41f71d";
-                    opts_kn.colorStop = "eaf71d";
+                    opts_kn.colorStart = "#41F71D";
+                    opts_kn.colorStop = "#EAF71D";
                     gauge_kn.setOptions(opts_kn);
                     gauge_kn.maxValue = 10.0;
                     gauge_kn.setMinValue(0.0);
                 } else if (gauge_two_mode == "batt") {
                     $("#gauge_kn_text").html(String(_data.display.batt_charge) + " A");
                     gauge_kn.set(_data.display.batt_charge); // set actual value
-                    opts_kn.colorStart = "41f71d";
-                    opts_kn.colorStop = "eaf71d";
+                    opts_kn.colorStart = "#41F71D";
+                    opts_kn.colorStop = "#EAF71D";
                     gauge_kn.setOptions(opts_kn);
                     gauge_kn.maxValue = 150.0;
                     gauge_kn.setMinValue(0.0);
