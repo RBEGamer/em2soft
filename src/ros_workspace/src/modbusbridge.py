@@ -23,13 +23,15 @@ def callbackui(data):
             client.write_coil(1,False, unit=1)
         else:
             client.write_coil(1,True, unit=1)
+        client.write_coil(0,True, unit=1)
 
     if(tmp['event'] == 'ctlmode'):
-        rr = client.read_coils(1,1,unit=1)
+        rr = client.read_coils(2,1,unit=1)
         if( rr.bits[0]):
-            client.write_coil(1,False, unit=1)
+            client.write_coil(3,False, unit=1)
         else:
-            client.write_coil(1,True, unit=1)
+            client.write_coil(3,True, unit=1)
+        #client.write_coil(4,True, unit=1)
 
     if(tmp['event'] == 'ascch'):
         print('ascch event')
@@ -92,7 +94,7 @@ if __name__ == '__main__':
         rospy.Subscriber("uimsg", String, callbackui)
         rospy.Subscriber("fromfb", String, callbackfb)
 
-        rate = rospy.Rate(10) # 10hz
+        rate = rospy.Rate(5) # 10hz
 
         # client = ModbusTcpClient('192.168.1.17', port=5020)
 
@@ -103,7 +105,7 @@ if __name__ == '__main__':
             try:
                 #print(".")
                 response = client.read_input_registers(0,30,unit=1)
-
+              
                 #print(response.registers)
 
                 pub.publish(json.dumps({
@@ -117,7 +119,6 @@ if __name__ == '__main__':
                     "state_v2":response.registers[13],
                     "state_v3":response.registers[14],
                     "ctlmode":response.registers[10], # 1= current 0=rpm
-
                     "fire_detcted": response.registers[20],#true fals
                     "temperature": 100.0-response.registers[18],#grad c
                     "batt_charge": -1.1,#A
@@ -132,8 +133,7 @@ if __name__ == '__main__':
 
                 #input register 0 schreibe 0-4
                 pub_fb.publish(json.dumps({
-                    "breaklevel":100-response.registers[5],
-                    ""
+                    "breaklevel":100-response.registers[5]
                 }))
             except:
                 rospy.loginfo("modbus_error")
