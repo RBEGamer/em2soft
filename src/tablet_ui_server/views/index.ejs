@@ -152,6 +152,14 @@
 
 
         <div class="row">
+            <div class="col-md-12 col-md-offset-1" style="border:2px solid white;" id="dist_left_box_cont">
+                &nbsp;
+                
+            </div>
+        </div>
+
+
+        <div class="row">
             <div class="col-md-12 col-md-offset-1" style="border:2px solid white;" id="alert_box">
                 &nbsp;
                 <div class="alert alert-primary" role="alert" id="alert_box">
@@ -417,7 +425,11 @@
                     }
 
                     if (_data.display.asc_rest_dist != undefined && _data.display.asc_rest_dist != null) {
-                        show_alert("DISTANCE TO STOP LEFT : " + _data.display.asc_rest_dist + " m", false);
+                      
+
+                        $("#dist_left_box_cont").html("DISTANCE TO STOP LEFT : " + _data.display.asc_rest_dist + " m");
+                    }else{
+                        $("#dist_left_box_cont").html("");
                     }
                 } else {
                     $("#img_asc").attr("src", "/img/new_icons/icon_150x150_autostop_undef.png");
