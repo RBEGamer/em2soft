@@ -23,14 +23,14 @@ def callbackui(data):
             client.write_coil(1,False, unit=1)
         else:
             client.write_coil(1,True, unit=1)
-    
+
     if(tmp['event'] == 'ctlmode'):
         rr = client.read_coils(1,1,unit=1)
         if( rr.bits[0]):
             client.write_coil(1,False, unit=1)
         else:
             client.write_coil(1,True, unit=1)
-    
+
     if(tmp['event'] == 'ascch'):
         print('ascch event')
         # TODO
@@ -39,6 +39,20 @@ def callbackui(data):
         #    client.write_coil(1,False, unit=1)
         #else:
         #    client.write_coil(1,True, unit=1)
+    if (tmp['event'] == 'kompmode'):
+        print('kompmode event')
+
+    if (tmp['event'] == 'embreak'):
+        print('embreak event')
+
+    if (tmp['event'] == 'lightmode'):
+        print('lightmode event')
+
+
+
+
+
+
 
 def callbackfb(data):
     rospy.loginfo(rospy.get_caller_id() + "I heard %s", data.data)
@@ -47,8 +61,8 @@ def callbackfb(data):
     client.write_register(0,int(tmp['breaklevel']), unit = 1) #WRITE BREAKLEVEL TO REISTER 0^
 
 
-   
-        
+
+
 
 
 if __name__ == '__main__':
@@ -60,14 +74,14 @@ if __name__ == '__main__':
 
         rate = rospy.Rate(10) # 10hz
 
-       # client = ModbusTcpClient('192.168.1.17', port=5020)
+        # client = ModbusTcpClient('192.168.1.17', port=5020)
 
         pub = rospy.Publisher('state', String, queue_size=10)
         pub_fb = rospy.Publisher('fbstate', String, queue_size=10)
 
         while not rospy.is_shutdown():
             try:
-            #print(".")
+                #print(".")
                 response = client.read_input_registers(0,20,unit=1)
 
                 #print(response.registers)
@@ -90,16 +104,18 @@ if __name__ == '__main__':
                     "asc_state":0, #0 off 1 active 2 triggered
                     "asc_rest_dist": 0.0,
                     "light_state": False,
-                    "emergencybrake":False
+                    "emergencybrake":False,
+                    "kompressorstate":0, # 0 = off  1= on 2= auto
+                    "lightstate": False
 
                 }))
 
-#input register 0 schreibe 0-4
+                #input register 0 schreibe 0-4
                 pub_fb.publish(json.dumps({
                     "breaklevel":100-response.registers[5],
                 }))
             except:
-                 rospy.loginfo("modbus_error")
+                rospy.loginfo("modbus_error")
             rate.sleep()
 
     except rospy.ROSInterruptException:

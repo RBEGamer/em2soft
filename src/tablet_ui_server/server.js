@@ -116,7 +116,9 @@ rosnodejs.initNode('/tablet_node')
                         batt_charge: json.batt_charge,
                         light_state: json.light_state,
                         asc_rest_dist: json.asc_rest_dist,
-                        emergencybrake: json.emergencybrake
+                        emergencybrake: json.emergencybrake,
+                        kompressorstate: json.kompressorstate,
+                        lightstate: json.lightstate
                     }
                 });
             }
@@ -179,6 +181,42 @@ io.on('connection', (socket) => {
             pub.publish(msg);
         }
     });
+
+    socket.on('kompmode', function () {
+        console.log('kompmode event');
+
+        if (pub != null) {
+            var msg = new std_msgs.String();
+            msg.data = JSON.stringify({ 'event': 'kompmode' });
+            pub.publish(msg);
+        }
+    });
+
+
+    socket.on('embreak', function () {
+        console.log('embreak event');
+
+        if (pub != null) {
+            var msg = new std_msgs.String();
+            msg.data = JSON.stringify({ 'event': 'embreak' });
+            pub.publish(msg);
+        }
+    });
+
+
+    socket.on('lightmode', function () {
+        console.log('lightmode event');
+
+        if (pub != null) {
+            var msg = new std_msgs.String();
+            msg.data = JSON.stringify({ 'event': 'lightmode' });
+            pub.publish(msg);
+        }
+    });
+
+
+    
+    
 
 });
 //TODO BUTTONS FÜR MANUELL SC_HALTEN EINBAUEN
