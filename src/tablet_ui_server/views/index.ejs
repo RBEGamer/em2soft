@@ -424,10 +424,8 @@
                         $("#img_asc").attr("src", "icon_150x150_autostop_on_detected.png");
                     }
 
-                    if (_data.display.asc_rest_dist != undefined && _data.display.asc_rest_dist != null) {
-                      
-
-                        $("#dist_left_box_cont").html("DISTANCE TO STOP LEFT : " + _data.display.asc_rest_dist + " m");
+                    if (_data.display.asc_rest_dist != undefined && _data.display.asc_rest_dist != null &&  _data.display.asc_state == 2) { 
+                        $("#dist_left_box_cont").html("&nbsp; <div class='alert alert-primary' role='alert' id='alert_box'>" + "DISTANCE TO STOP LEFT : " + _data.display.asc_rest_dist + " m" + "</div>");
                     }else{
                         $("#dist_left_box_cont").html("");
                     }
