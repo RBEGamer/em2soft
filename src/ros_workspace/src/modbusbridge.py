@@ -82,7 +82,7 @@ if __name__ == '__main__':
         while not rospy.is_shutdown():
             try:
                 #print(".")
-                response = client.read_input_registers(0,20,unit=1)
+                response = client.read_input_registers(0,30,unit=1)
 
                 #print(response.registers)
 
@@ -90,29 +90,30 @@ if __name__ == '__main__':
                     "kompressordruck": response.registers[4] / 100.0,
                     "kmh": response.registers[3] / 100.0,
                     "kn":response.registers[15]* 100.0, # anzeige ist in N
-                    "breaklevel":100-response.registers[5],
-                    "direction":response.registers[8],
+                    "breaklevel":100-response.registers[5], # 0-4
+                    "direction":response.registers[8],# 0-1
                     "state_v0":response.registers[11],
                     "state_v1":response.registers[12],
                     "state_v2":response.registers[13],
                     "state_v3":response.registers[14],
                     "ctlmode":response.registers[10], # 1= current 0=rpm
 
-                    "fire_detcted": False,#true fals
-                    "temperature": 23.4,#grad c
+                    "fire_detcted": response.registers[20],#true fals
+                    "temperature": 100.0-response.registers[18],#grad c
                     "batt_charge": -1.1,#A
-                    "asc_state":0, #0 off 1 active 2 triggered
-                    "asc_rest_dist": 0.0,
-                    "light_state": False,
+                    "asc_state":response.registers[20], #0 off 1 active 2 triggered
+                    "asc_rest_dist": response.registers[19],
                     "emergencybrake":False,
-                    "kompressorstate":0, # 0 = off  1= on 2= auto
-                    "lightstate": False
+                    "kompressorstate":response.registers[17], # 0 = off  1= on 2= auto
+                    "lightstate": response.registers[21],
+                    "kompressor_power_state":response.registers[16]#0=off 1=on
 
                 }))
 
                 #input register 0 schreibe 0-4
                 pub_fb.publish(json.dumps({
                     "breaklevel":100-response.registers[5],
+                    ""
                 }))
             except:
                 rospy.loginfo("modbus_error")
