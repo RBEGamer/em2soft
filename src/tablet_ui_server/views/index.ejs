@@ -185,7 +185,7 @@
 
 
         <script>
-
+    var last_guage_mode = "";
             var opts_kmh = {
                 angle: 0, // The span of the gauge arc
                 lineWidth: 0.44, // The line thickness
@@ -432,35 +432,45 @@
                 if (gauge_two_mode == "kn") {
                     $("#gauge_kn_text").html(String(_data.display.kn) + " N");
                     gauge_kn.set(_data.display.kn); // set actual value
-                    opts_kn.colorStart = "#6B4E2C";
-                    opts_kn.colorStop = "#4A9A41";
-                    gauge_kn.setOptions(opts_kn);
-                    gauge_kn.maxValue = 1000.0;
-                    gauge_kn.setMinValue(-1000.0);
+                    if(last_guage_mode != last_guage_mode){
+                        last_guage_mode = gauge_two_mode;
+                        opts_kn.colorStart = "#6B4E2C";
+                        opts_kn.colorStop = "#4A9A41";
+                        gauge_kn.setOptions(opts_kn);
+                        gauge_kn.maxValue = 1000.0;
+                        gauge_kn.setMinValue(-1000.0);
+                    }
+                   
                 } else if (gauge_two_mode == "bar") {
                     $("#gauge_kn_text").html(String(_data.display.kompressordruck) + " BAR");
                     gauge_kn.set(_data.display.kompressordruck); // set actual value
+                    if(last_guage_mode != last_guage_mode){
                     opts_kn.colorStart = "#41F71D";
                     opts_kn.colorStop = "#EAF71D";
                     gauge_kn.setOptions(opts_kn);
                     gauge_kn.maxValue = 10.0;
                     gauge_kn.setMinValue(0.0);
+                    }
                 } else if (gauge_two_mode == "batt") {
                     $("#gauge_kn_text").html(String(_data.display.batt_charge) + " A");
                     gauge_kn.set(_data.display.batt_charge); // set actual value
+                    if(last_guage_mode != last_guage_mode){
                     opts_kn.colorStart = "#41F71D";
                     opts_kn.colorStop = "#EAF71D";
                     gauge_kn.setOptions(opts_kn);
                     gauge_kn.maxValue = 150.0;
                     gauge_kn.setMinValue(0.0);
+                    }
                 } else if (gauge_two_mode == "temp") {
                     $("#gauge_kn_text").html(String(_data.display.temperature) + " &deg;C");
                     gauge_kn.set(_data.display.temperature); // set actual value
+                    if(last_guage_mode != last_guage_mode){
                     opts_kn.colorStart = "#E0E0E0";
                     opts_kn.colorStop = "#E0E0E0";
                     gauge_kn.setOptions(opts_kn);
                     gauge_kn.maxValue = 120.0;
                     gauge_kn.setMinValue(-20.0);
+                    }
                 } else {
                     $("#gauge_kn_text").html(String(_data.display.kn) + "---");
                 }
