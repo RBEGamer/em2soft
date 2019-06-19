@@ -261,30 +261,30 @@
             var fire_detection_last_state = false;
             //SET TO BG IMG_SIZE
             function change_direction() {
-                socket.emit('dirch', { 'event': 'dirch' });
+                socket.emit('event', { 'event': 'dirch' });
             }
 
             function change_ctlmode() {
-                socket.emit('ctlmodech', { 'event': 'ctlmode' });
+                socket.emit('event', { 'event': 'ctlmode' });
             }
             function change_asc() {
-                socket.emit('ascch', { 'event': 'asc' });
+                socket.emit('event', { 'event': 'asc' });
             }
 
             function change_kompressormode(){
-                socket.emit('kompmode', { 'event': 'kompmode' });
+                socket.emit('event', { 'event': 'kompmode' });
             }
 
             function send_notbremse(){
-                socket.emit('embreak', { 'event': 'embreak' });
+                socket.emit('event', { 'event': 'embreak' });
             }
 
             function change_lightmode(){
-                socket.emit('lightmode', { 'event': 'lightmode' });
+                socket.emit('event', { 'event': 'lightmode' });
             }
 
             function change_brkloes(){
-                socket.emit('brkloes', { 'event': 'brkloes' });
+                socket.emit('event', { 'event': 'brkloes' });
                 // TODO !!!
             }
             var gauge_two_mode = "bar"; //bar kn batt temp
@@ -296,15 +296,15 @@
             function change_breakingstep(_var) {
 
                 if(_var == 0){
-                     socket.emit('brkstep0', { 'event': 'brkstep0' });
+                     socket.emit('event', { 'event': 'brkstep0' });
                 }else  if(_var == 1){
-                     socket.emit('brkstep1', { 'event': 'brkstep1' });
+                     socket.emit('event', { 'event': 'brkstep1' });
                 }else  if(_var == 2){
-                     socket.emit('brkstep2', { 'event': 'brkstep2' });
+                     socket.emit('event', { 'event': 'brkstep2' });
                 }else  if(_var == 3){
-                     socket.emit('brkstep3', { 'event': 'brkstep3' });
+                     socket.emit('event', { 'event': 'brkstep3' });
                 }else  if(_var == 4){
-                     socket.emit('brkstep4', { 'event': 'brkstep4' });
+                     socket.emit('event', { 'event': 'brkstep4' });
                 }
               
             }

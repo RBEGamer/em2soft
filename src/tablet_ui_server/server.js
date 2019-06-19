@@ -152,126 +152,16 @@ io.on('connection', (socket) => {
 
 
 
-    socket.on('dirch', function () {
-        console.log('dirch event');
-
+    socket.on('event', function (_msg) {
+        console.log(_msg.event + ' event');
         if (pub != null) {
             var msg = new std_msgs.String();
-            msg.data = JSON.stringify({ 'event': 'dirch' });
+            msg.data = JSON.stringify(_msg);
 
             pub.publish(msg);
         }
     });
 
-
-    socket.on('ctlmodech', function () {
-        console.log('ctlmodech event');
-
-        if (pub != null) {
-            var msg = new std_msgs.String();
-            msg.data = JSON.stringify({ 'event': 'ctlmode' });
-            pub.publish(msg);
-        }
-    });
-
-    socket.on('ascch', function () {
-        console.log('ctlmodech event');
-
-        if (pub != null) {
-            var msg = new std_msgs.String();
-            msg.data = JSON.stringify({ 'event': 'ascch' });
-            pub.publish(msg);
-        }
-    });
-
-    socket.on('kompmode', function () {
-        console.log('kompmode event');
-
-        if (pub != null) {
-            var msg = new std_msgs.String();
-            msg.data = JSON.stringify({ 'event': 'kompmode' });
-            pub.publish(msg);
-        }
-    });
-
-
-    socket.on('embreak', function () {
-        console.log('embreak event');
-
-        if (pub != null) {
-            var msg = new std_msgs.String();
-            msg.data = JSON.stringify({ 'event': 'embreak' });
-            pub.publish(msg);
-        }
-    });
-
-
-    socket.on('lightmode', function () {
-        console.log('lightmode event');
-        if (pub != null) {
-            var msg = new std_msgs.String();
-            msg.data = JSON.stringify({ 'event': 'lightmode' });
-            pub.publish(msg);
-        }
-    });
-
-
-
-    socket.on('brkstep0', function () {
-        console.log('brkstep0 event');
-        if (pub != null) {
-            var msg = new std_msgs.String();
-            msg.data = JSON.stringify({ 'event': 'brkstep0' });
-            pub.publish(msg);
-        }
-    });
-
-    socket.on('brkstep1', function () {
-        console.log('brkstep1 event');
-        if (pub != null) {
-            var msg = new std_msgs.String();
-            msg.data = JSON.stringify({ 'event': 'brkstep1' });
-            pub.publish(msg);
-        }
-    });
-    
-    socket.on('brkstep2', function () {
-        console.log('brkstep2 event');
-        if (pub != null) {
-            var msg = new std_msgs.String();
-            msg.data = JSON.stringify({ 'event': 'brkstep2' });
-            pub.publish(msg);
-        }
-    });
-
-    socket.on('brkstep3', function () {
-        console.log('brkstep3 event');
-        if (pub != null) {
-            var msg = new std_msgs.String();
-            msg.data = JSON.stringify({ 'event': 'brkstep3' });
-            pub.publish(msg);
-        }
-    });
-
-    socket.on('brkstep4', function () {
-        console.log('brkstep4 event');
-        if (pub != null) {
-            var msg = new std_msgs.String();
-            msg.data = JSON.stringify({ 'event': 'brkstep4' });
-            pub.publish(msg);
-        }
-    });
-
-
-    socket.on('brkloes', function () {
-        console.log('brkloes event');
-        if (pub != null) {
-            var msg = new std_msgs.String();
-            msg.data = JSON.stringify({ 'event': 'brkloes' });
-            pub.publish(msg);
-        }
-    });
-    
 
 });
 //TODO BUTTONS FÜR MANUELL SC_HALTEN EINBAUEN
