@@ -7,7 +7,7 @@ import json
 
 
 
-client =  ModbusTcpClient('192.168.1.17', port=5020)
+client =  ModbusTcpClient('192.168.178.95', port=5020)
 
 def callback(data):
     print('.')
@@ -116,7 +116,7 @@ if __name__ == '__main__':
                 pub.publish(json.dumps({
                     "kompressordruck": response.registers[4] / 100.0,
                     "kmh": response.registers[3] / 100.0,
-                    "kn":response.registers[15]* 100.0, # anzeige ist in N
+                    "kn":(response.registers[15]-1000) / 100.0, # anzeige ist in N
                     "breaklevel":100-response.registers[5], # 0-4
                     "direction":response.registers[8],# 0-1
                     "state_v0":response.registers[11],
@@ -125,10 +125,10 @@ if __name__ == '__main__':
                     "state_v3":response.registers[14],
                     "ctlmode":response.registers[10], # 1= current 0=rpm
                     "fire_detcted": response.registers[20],#true fals
-                    "temperature": 100.0-response.registers[18],#grad c
+                    "temperature": (response.registers[18]-100.0)/100.0,#grad c
                     "batt_charge": -1.1,#A
                     "asc_state":response.registers[20], #0 off 1 active 2 triggered
-                    "asc_rest_dist": response.registers[19],
+                    "asc_rest_dist": response.registers[19]/100.0,
                     "emergencybrake":0, # 0 nicht 1 ausgeloesst
                     "emergencybrakereset":0,# 1 warte auf release
                     "kompressorstate":response.registers[17], # 0 = off  1= on 2= auto
