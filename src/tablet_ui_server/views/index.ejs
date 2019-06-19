@@ -206,6 +206,11 @@ var embrakeactivatedsound = new Audio('./audio/embrake_activated.mp3');
 
 var forwardsound = new Audio('./audio/forward.mp3');
 var backwardsound = new Audio('./audio/backward.mp3');
+
+
+var modecurrentsound = new Audio('./audio/mode_current.mp3');
+var moderpmsound = new Audio('./audio/mode_rpm.mp3');
+
 var directionchangesoundplayed = false;
 var last_direction = false;
     var last_guage_mode = "";
@@ -300,6 +305,7 @@ var last_direction = false;
             var fire_detection_sound_intervall = null;
             var fire_detection_last_state = false;
             var fire_sound_cleared = false;
+            var chmoderpm_switched = false;
             //SET TO BG IMG_SIZE
             function change_direction() {
                 socket.emit('event', { 'event': 'dirch' });
@@ -685,10 +691,16 @@ var last_direction = false;
                         if (!chmodeicon_switched) {
                             sw_gauge_mode_two('kn');
                             chmodeicon_switched = true;
+                            modecurrentsound.play();
                         }
                     } else {
                         $("#img_ctlmode").attr("src", "/img/new_icons/icon_150x150_mode_rpm.png");
                         chmodeicon_switched = false;
+                        if(!chmoderpm_switched){
+                            chmoderpm_switched = true;
+                            moderpmsound.play();
+                        }
+                        
                     }
                 } else {
                     $("#img_ctlmode").attr("src", "/img/new_icons/icon_150x150_undef.png");
