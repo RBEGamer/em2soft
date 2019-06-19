@@ -47,58 +47,58 @@
 
             <div class="col-md-1 col-md-offset-1">
                 <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
-                    style="border:3px solid white;" id="img_v0" onclick="change_breakingstep(1);"/>
+                     id="img_v0" onclick="change_breakingstep(1);"/>
             </div>
             <div class="col-md-1">
                 <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
-                    style="border:3px solid white;" id="img_v1" onclick="change_breakingstep(2);"/>
+                     id="img_v1" onclick="change_breakingstep(2);"/>
             </div>
             <div class="col-md-1">
                 <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
-                    style="border:3px solid white;" id="img_v2" onclick="change_breakingstep(3);"/>
+                    id="img_v2" onclick="change_breakingstep(3);"/>
             </div>
             <div class="col-md-1">
                 <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
-                    style="border:3px solid white;" id="img_v3" onclick="change_breakingstep(4);"/>
-            </div>
-
-            <div class="col-md-1">
-                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
-                    style="border:3px solid white;" id="img_fire" />
+                     id="img_v3" onclick="change_breakingstep(4);"/>
             </div>
 
             <div class="col-md-1">
                 <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
-                    style="border:3px solid white;" id="img_direction" onclick="change_direction()" />
+                     id="img_fire" onclick="clear_fire_sound();"/>
             </div>
 
             <div class="col-md-1">
                 <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
-                    style="border:3px solid white;" id="img_ctlmode" onclick="change_ctlmode()" />
+                     id="img_direction" onclick="change_direction()" />
+            </div>
+
+            <div class="col-md-1">
+                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
+                    id="img_ctlmode" onclick="change_ctlmode()" />
             </div>
 
 
             <div class="col-md-1">
                 <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
-                    style="border:3px solid white;" id="img_asc" onclick="change_asc()" />
+                    id="img_asc" onclick="change_asc()" />
             </div>
 
 
              <div class="col-md-1">
                 <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
-                    style="border:3px solid white;" id="img_komp" onclick="change_kompressormode()" />
+                     id="img_komp" onclick="change_kompressormode()" />
             </div>
 
 
             <div class="col-md-1">
                 <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
-                    style="border:3px solid white;" id="img_light" onclick="change_lightmode()" />
+                     id="img_light" onclick="change_lightmode()" />
             </div>
 
 
             <div class="col-md-1">
                 <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
-                    style="border:3px solid white;" id="img_brkloes" onclick="change_brkloes()" />
+                    id="img_brkloes" onclick="change_brkloes()" />
             </div>
 
         </div>
@@ -132,7 +132,7 @@
         <div class="row" style="border:2px solid white;">
             <div class="col-md-6 col-md-offset-1 center-block text-center" style="border:2px solid white;">
 
-
+                <div id="dist_left_box_cont"></div>
             </div>
             <div class="col-md-6 col-md-offset-1 center-block text-center" style="border:2px solid white;">
                 <button type="button" class="btn btn-info" id="chgaugtwo_kn" onclick="sw_gauge_mode_two('kn');"> KN
@@ -150,18 +150,13 @@
         <div class="row">
             <div class="col-md-12 col-md-offset-1" style="border:2px solid white;" id="alert_box">
                
-                <img class="img-responsive" src="/img/new_icons/icon_512x128_Notbremse.png"  id="img_notbremse" onclick="send_notbremse()" />
+                <img class="img-responsive img-center" src="/img/new_icons/icon_512x128_Notbremse.png"  id="img_notbremse" onclick="send_notbremse()" />
                 
             </div>
         </div>
 
 
-        <div class="row">
-            <div class="col-md-12 col-md-offset-1" style="border:2px solid white;" id="dist_left_box_cont">
-                &nbsp;
-                
-            </div>
-        </div>
+       
 
 
         <div class="row">
@@ -182,10 +177,7 @@
 
 
 
-        <audio id="firesound" preload="auto">
-            <source src="./audio/fire.mp3" />
-            <source src="./audio/fire.ogg" />
-        </audio>
+       
 
 
         <!-- Bootstrap core JavaScript -->
@@ -198,6 +190,16 @@
 
 
         <script>
+
+var firesound = new Audio('./audio/fire.mp3');
+var firesound_clear = new Audio('./audio/fire_clear.mp3');
+
+var embrakeactivatedsound = new Audio('./audio/embrake_activated.mp3');
+
+var forwardsound = new Audio('./audio/forward.mp3');
+var backwardsound = new Audio('./audio/backward.mp3');
+var directionchangesoundplayed = false;
+var last_direction = false;
     var last_guage_mode = "";
             var opts_kmh = {
                 angle: 0, // The span of the gauge arc
@@ -206,7 +208,7 @@
                 pointer: {
                     length: 0.5, // // Relative to gauge radius
                     strokeWidth: 0.035, // The thickness
-                    color: '#000000' // Fill color
+                    color: '#FFFFFF' // Fill color
                 },
                 limitMax: true,     // If false, max value increases automatically if value > maxValue
                 limitMin: true,     // If true, the min value of the gauge will be fixed
@@ -225,7 +227,7 @@
                 pointer: {
                     length: 0.5, // // Relative to gauge radius
                     strokeWidth: 0.035, // The thickness
-                    color: '#000000' // Fill color
+                    color: '#FFFFFF' // Fill color
                 },
                 limitMax: true,     // If false, max value increases automatically if value > maxValue
                 limitMin: true,     // If true, the min value of the gauge will be fixed
@@ -259,6 +261,7 @@
 
             var fire_detection_sound_intervall = null;
             var fire_detection_last_state = false;
+            var fire_sound_cleared = false;
             //SET TO BG IMG_SIZE
             function change_direction() {
                 socket.emit('event', { 'event': 'dirch' });
@@ -287,6 +290,17 @@
                 socket.emit('event', { 'event': 'brkloes' });
                 // TODO !!!
             }
+
+            function clear_fire_sound(){
+                if(!fire_sound_cleared){
+                    clearInterval(fire_detection_sound_intervall);
+                    firesound_clear.play();
+                    fire_sound_cleared  = true;
+                }  
+            }
+           
+
+
             var gauge_two_mode = "bar"; //bar kn batt temp
 
             function sw_gauge_mode_two(_btn_id) {
@@ -333,7 +347,7 @@
             var old_alert_msg = "";
             var fahrtrichtungtext = "---";
             var chmodeicon_switched = false;
-
+            var fire_blink = false;
             function parse_state_data(_data) {
 
                 if (_data == null || _data.display == null) {
@@ -345,7 +359,7 @@
 
                 if (_data.display.lightstate != undefined && _data.display.lightstate != null) {
                     if (_data.display.lightstate) {
-                        $("#img_light").attr("src", "/img/new_icons/icon_150x150_lights_A_on.png");
+                        $("#img_light").attr("src", "/img/new_icons/icon_150x150_lights_A_on_front.png");
                     } else{
                         $("#img_light").attr("src", "/img/new_icons/icon_150x150_lights_A_off.png");
                     }
@@ -373,7 +387,7 @@
 
 
                 if (_data.display.state_v0 != undefined && _data.display.state_v0 != null) {
-                    if (_data.display.state_v0) {
+                    if (!_data.display.state_v0) {
                         $("#img_v0").attr("src", "/img/new_icons/icon_150x150_brake_1_on.png");
                     } else {
                         $("#img_v0").attr("src", "/img/new_icons/icon_150x150_brake_1_off.png");
@@ -383,7 +397,7 @@
                 }
 
                 if (_data.display.state_v1 != undefined && _data.display.state_v1 != null) {
-                    if (_data.display.state_v1) {
+                    if (!_data.display.state_v1) {
                         $("#img_v1").attr("src", "/img/new_icons/icon_150x150_brake_2_on.png");
                     } else {
                         $("#img_v1").attr("src", "/img/new_icons/icon_150x150_brake_2_off.png");
@@ -393,7 +407,7 @@
                 }
 
                 if (_data.display.state_v2 != undefined && _data.display.state_v2 != null) {
-                    if (_data.display.state_v2) {
+                    if (!_data.display.state_v2) {
                         $("#img_v2").attr("src", "/img/new_icons/icon_150x150_brake_3_on.png");
                     } else {
                         $("#img_v2").attr("src", "/img/new_icons/icon_150x150_brake_3_off.png");
@@ -403,7 +417,7 @@
                 }
 
                 if (_data.display.state_v3 != undefined && _data.display.state_v3 != null) {
-                    if (_data.display.state_v3) {
+                    if (!_data.display.state_v3) {
                         $("#img_v3").attr("src", "/img/new_icons/icon_150x150_brake_4_on.png");
                     } else {
                         $("#img_v3").attr("src", "/img/new_icons/icon_150x150_brake_4_off.png");
@@ -433,15 +447,26 @@
 
                 if (_data.display.fire_detcted != undefined && _data.display.fire_detcted != null) {
                     if (_data.display.fire_detcted) {
-                        $("#img_fire").attr("src", "/img/zusi_icons/fire.png");
+                        $("#img_fire").attr("src", "/img/new_icons/icon_150x150_fire_on_a.png");
 
 
                         if (fire_detection_last_state != _data.display.fire_detcted) {
                             fire_detection_last_state = _data.display.fire_detcted;
-
+                            fire_sound_cleared = false;
                             if (fire_detection_last_state) {
                                 fire_detection_sound_intervall = setInterval(() => { 
-                                    $("#firesound").play(); 
+                                   
+
+                                    if(fire_blink){
+                                 
+                                        $("#img_fire").attr("src", "/img/new_icons/icon_150x150_fire_on_a.png");
+                                    }else{
+                           
+                                        $("#img_fire").attr("src", "/img/new_icons/icon_150x150_fire_on_b.png");
+                                    }
+                                    fire_blink = !fire_blink;
+
+                                    firesound.play(); 
                                 }, 2000);
 
                             } else {
@@ -450,10 +475,16 @@
                         }
 
                     } else {
-                        $("#img_fire").attr("src", "/img/zusi_icons/nofire.png");
+                        $("#img_fire").attr("src", "/img/new_icons/icon_150x150_fire_off.png");
+                        clearInterval(fire_detection_sound_intervall);
+                        fire_detection_last_state = false;
+                        fire_sound_cleared = false;
                     }
                 } else {
                     $("#img_fire").attr("src", "/img/new_icons/icon_150x150_undef.png");
+                    clearInterval(fire_detection_sound_intervall);
+                    fire_detection_last_state = false;
+                    fire_sound_cleared = false;
                 }
 
 
@@ -463,13 +494,13 @@
                     if (_data.display.asc_state == 0) {
                         $("#img_asc").attr("src", "/img/new_icons/icon_150x150_autostop_off.png");
                     } else if (_data.display.asc_state == 1) {
-                        $("#img_asc").attr("src", "icon_150x150_autostop_on.png");
+                        $("#img_asc").attr("src", "/img/new_icons/icon_150x150_autostop_on.png");
                     } else if (_data.display.asc_state == 2) {
-                        $("#img_asc").attr("src", "icon_150x150_autostop_on_detected.png");
+                        $("#img_asc").attr("src", "/img/new_icons/icon_150x150_autostop_on_detected.png");
                     }
 
                     if (_data.display.asc_rest_dist != undefined && _data.display.asc_rest_dist != null &&  _data.display.asc_state == 2) { 
-                        $("#dist_left_box_cont").html("&nbsp; <div class='alert alert-primary' role='alert' id='alert_box'>" + "DISTANCE TO STOP LEFT : " + _data.display.asc_rest_dist + " m" + "</div>");
+                        $("#dist_left_box_cont").html("<span style='color: #FFFFFF;font-size:24px;'>" + "DISTANCE TO STOP LEFT : <b>" + _data.display.asc_rest_dist + "</b> m" + "</span>");
                     }else{
                         $("#dist_left_box_cont").html("");
                     }
@@ -486,10 +517,10 @@
                 if (gauge_two_mode == "kn") {
                     $("#gauge_kn_text").html(String(_data.display.kn) + " N");
                     gauge_kn.set(_data.display.kn); // set actual value
-                    if(last_guage_mode != last_guage_mode){
+                    if(last_guage_mode != gauge_two_mode){
                         last_guage_mode = gauge_two_mode;
-                        opts_kn.colorStart = "#6B4E2C";
-                        opts_kn.colorStop = "#4A9A41";
+                        opts_kn.colorStart = "#aa772a";
+                        opts_kn.colorStop = "#aa772a";
                         gauge_kn.setOptions(opts_kn);
                         gauge_kn.maxValue = 1000.0;
                         gauge_kn.setMinValue(-1000.0);
@@ -498,29 +529,33 @@
                 } else if (gauge_two_mode == "bar") {
                     $("#gauge_kn_text").html(String(_data.display.kompressordruck) + " BAR");
                     gauge_kn.set(_data.display.kompressordruck); // set actual value
-                    if(last_guage_mode != last_guage_mode){
-                    opts_kn.colorStart = "#41F71D";
-                    opts_kn.colorStop = "#EAF71D";
-                    gauge_kn.setOptions(opts_kn);
-                    gauge_kn.maxValue = 10.0;
-                    gauge_kn.setMinValue(0.0);
+                    if(last_guage_mode != gauge_two_mode){
+                        last_guage_mode = gauge_two_mode;
+                        opts_kn.colorStop = "#73fc58";
+                        opts_kn.colorStart = "#73fc58";
+                        gauge_kn.setOptions(opts_kn);
+                        gauge_kn.maxValue = 10.0;
+                        gauge_kn.setMinValue(0.0);
+                       
                     }
                 } else if (gauge_two_mode == "batt") {
                     $("#gauge_kn_text").html(String(_data.display.batt_charge) + " A");
                     gauge_kn.set(_data.display.batt_charge); // set actual value
-                    if(last_guage_mode != last_guage_mode){
-                    opts_kn.colorStart = "#41F71D";
-                    opts_kn.colorStop = "#EAF71D";
-                    gauge_kn.setOptions(opts_kn);
-                    gauge_kn.maxValue = 150.0;
-                    gauge_kn.setMinValue(0.0);
+                    if(last_guage_mode != gauge_two_mode){
+                        last_guage_mode = gauge_two_mode;
+                        opts_kn.colorStart = "#e755f4";
+                        opts_kn.colorStop = "#e755f4";
+                        gauge_kn.setOptions(opts_kn);
+                        gauge_kn.maxValue = 150.0;
+                        gauge_kn.setMinValue(0.0);
                     }
                 } else if (gauge_two_mode == "temp") {
                     $("#gauge_kn_text").html(String(_data.display.temperature) + " &deg;C");
                     gauge_kn.set(_data.display.temperature); // set actual value
-                    if(last_guage_mode != last_guage_mode){
-                    opts_kn.colorStart = "#E0E0E0";
-                    opts_kn.colorStop = "#E0E0E0";
+                    if(last_guage_mode != gauge_two_mode){
+                    last_guage_mode = gauge_two_mode;
+                    opts_kn.colorStart = "#f2ec52";
+                    opts_kn.colorStop = "#f2ec52";
                     gauge_kn.setOptions(opts_kn);
                     gauge_kn.maxValue = 120.0;
                     gauge_kn.setMinValue(-20.0);
@@ -558,9 +593,26 @@
                     fahrtrichtungtext = "FORWARD";
                     $("#img_direction").attr("src", "/img/new_icons/icon_150x150_Notbremse_vorwaerts.png");
 
+                    if(_data.display.direction != last_direction){
+                        last_direction = _data.display.direction;
+
+                        if(_data.display.direction == 1){
+                            forwardsound.play();
+                        }
+                    }
+
                 } else if (_data.display.direction == 0) {
                     fahrtrichtungtext = "BACKWARD";
                     $("#img_direction").attr("src", "/img/new_icons/icon_150x150_direction_backwards.png");
+
+                    if(_data.display.direction != last_direction){
+                        last_direction = _data.display.direction;
+
+                        if(_data.display.direction == 0){
+                            backwardsound.play();
+                        }
+                    }
+
                 } else {
                     fahrtrichtungtext = "UNKNOWN";
                     $("#img_direction").attr("src", "/img/new_icons/icon_150x150_undef.png");
