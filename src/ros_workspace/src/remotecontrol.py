@@ -10,7 +10,7 @@ import serial
 velsetpoint = 0
 breaksetpoint = 0
 
-ser = serial.Serial('/dev/ttyUSB0', 9600) # Establish the connection on a specific port
+ser = None
 
 
 def callback(data):
@@ -22,9 +22,17 @@ def callback(data):
 if __name__ == '__main__':
     try:
         rospy.init_node('remotecontrol', anonymous=True)
+
         rospy.Subscriber("fbstate", String, callback)
 
-        rate = rospy.Rate(10) # 10hz
+        param_rate = rospy.get_param('refresh_rate', 10)
+        param_port = rospy.get_param('serialport', '/dev/ttyUSB0')
+        param_baud = rospy.get_param('serialbaud', 9600)
+
+        rate = rospy.Rate(param_rate) # 10hz
+
+        serial.Serial(param_port, param_baud) # Establish the connection on a specific port
+
 
         pub = rospy.Publisher('fromfb', String, queue_size=10)
 

@@ -7,7 +7,7 @@ import time
 
 
 
-client =  ModbusTcpClient('192.168.1.17', port=5020)
+client = None
 
 def callback(data):
     print('.')
@@ -112,20 +112,27 @@ def callbackfb(data):
 
 if __name__ == '__main__':
     try:
-        rospy.init_node('modbus', anonymous=True)
+        rospy.init_node('modbusbridge', anonymous=True)
         rospy.Subscriber("chatter", String, callback)
         rospy.Subscriber("uimsg", String, callbackui)
         rospy.Subscriber("fromfb", String, callbackfb)
 
-        rate = rospy.Rate(5) # 10hz
+        param_rate = rospy.get_param('refresh_rate', 10)
+        param_ip = rospy.get_param('modbus_port', 5020)
+        param_port = rospy.get_param('modbus_ip', "192.168.1.17")
 
+        rate = rospy.Rate(param_rate) # 10hz
+#rospy.get_param('foo', 'default_value')
         # client = ModbusTcpClient('192.168.1.17', port=5020)
+        client = ModbusTcpClient(param_ip, port=param_port)
+
 
         pub = rospy.Publisher('state', String, queue_size=10)
         pub_fb = rospy.Publisher('fbstate', String, queue_size=10)
 
         client.write_coil(6,False, unit=1)
         client.write_coil(7,False, unit=1)
+        
         while not rospy.is_shutdown():
             try:
                 #print(".")
