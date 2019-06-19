@@ -117,7 +117,9 @@ rosnodejs.initNode('/tablet_node')
                         kompressorstate: json.kompressorstate,
                         lightstate: json.lightstate,
                         kompressor_power_state:json.kompressor_power_state,
-                        emergencybrakereset:json.emergencybrakereset
+                        emergencybrakereset:json.emergencybrakereset,
+                        hupe_state:json.hupe_state
+
                     }
                 });
             }
