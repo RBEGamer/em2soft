@@ -75,19 +75,21 @@ def callbackui(data):
         time.sleep(2)
         client.write_coil(6,False, unit=1)
 
-    if(tmp['event' == 'startup']):
-         print('startup event')
+    if(tmp['event'] == 'startup'):
+        print('startup event')
         client.write_coil(6,False, unit=1)
-
+        client.write_coil(7,False, unit=1)
 
     if (tmp['event'] == 'hupe'):
         #print( 'hupe event')
         print(tmp)
 
-        #if(tmp['state'] == 1):
-        #     client.write_coil(7,True, unit=1)
-        #else:
-        #     client.write_coil(7,False, unit=1)
+        if(tmp['state'] == 1):
+            client.write_coil(7,True, unit=1)
+            print("h1")
+        else:
+            client.write_coil(7,False, unit=1)
+            print("h0")
         
         
 
@@ -123,6 +125,7 @@ if __name__ == '__main__':
         pub_fb = rospy.Publisher('fbstate', String, queue_size=10)
 
         client.write_coil(6,False, unit=1)
+        client.write_coil(7,False, unit=1)
         while not rospy.is_shutdown():
             try:
                 #print(".")
