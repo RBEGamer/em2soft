@@ -3,11 +3,11 @@ import rospy
 from std_msgs.msg import String
 from pymodbus.client.sync import ModbusTcpClient
 import json
+import time
 
 
 
-
-client =  ModbusTcpClient('192.168.178.95', port=5020)
+client = None
 
 def callback(data):
     print('.')
@@ -47,10 +47,10 @@ def callbackui(data):
 
     if (tmp['event'] == 'embreak'):
         print('embreak event')
-
+        client.write_register(22,1, unit = 1)
     if (tmp['event'] == 'lightmode'):
         print('lightmode event')
-
+        client.write_register(23,1, unit = 1)
 
 
     if (tmp['event'] == 'brkstep0'):
@@ -68,12 +68,31 @@ def callbackui(data):
     if (tmp['event'] == 'brkstep4'):
         print('brkstep0 event')
         client.write_register(0,4, unit = 1)
-        #response.registers[21] 1/0 schreiben
 
 
     if (tmp['event'] == 'brkloes'):
         print('brkloes event')
-        #client.write_register(0,4, unit = 1)#TODO
+        client.write_coil(6,True, unit=1)
+        time.sleep(2)
+        client.write_coil(6,False, unit=1)
+
+    if(tmp['event'] == 'startup'):
+        print('startup event')
+        client.write_coil(6,False, unit=1)
+        client.write_coil(7,False, unit=1)
+
+    if (tmp['event'] == 'hupe'):
+        #print( 'hupe event')
+        print(tmp)
+
+        if(tmp['state'] == 1):
+            client.write_coil(7,True, unit=1)
+            print("h1")
+        else:
+            client.write_coil(7,False, unit=1)
+            print("h0")
+        
+        
 
 
 
@@ -94,24 +113,32 @@ def callbackfb(data):
 
 if __name__ == '__main__':
     try:
-        rospy.init_node('modbus', anonymous=True)
+        rospy.init_node('modbusbridge', anonymous=True)
         rospy.Subscriber("chatter", String, callback)
         rospy.Subscriber("uimsg", String, callbackui)
         rospy.Subscriber("fromfb", String, callbackfb)
 
-        rate = rospy.Rate(5) # 10hz
+        param_rate = rospy.get_param('refresh_rate', '10')
+        param_port = rospy.get_param('modbus_port', '5020')
+        param_ip = rospy.get_param('modbus_ip', "192.168.178.95")
 
-        # client = ModbusTcpClient('192.168.1.17', port=5020)
+        rate = rospy.Rate(int(param_rate)) # 10hz
+
+        client = ModbusTcpClient(param_ip, port=int(param_port))
+
 
         pub = rospy.Publisher('state', String, queue_size=10)
         pub_fb = rospy.Publisher('fbstate', String, queue_size=10)
 
+        client.write_coil(6,False, unit=1)
+        client.write_coil(7,False, unit=1)
+        
         while not rospy.is_shutdown():
             try:
                 #print(".")
                 response = client.read_input_registers(0,30,unit=1)
               
-                #print(response.registers)
+                #print(response.registers[23])
 
                 pub.publish(json.dumps({
                     "kompressordruck": response.registers[4] / 100.0,
@@ -125,15 +152,16 @@ if __name__ == '__main__':
                     "state_v3":response.registers[14],
                     "ctlmode":response.registers[10], # 1= current 0=rpm
                     "fire_detcted": response.registers[20],#true fals
-                    "temperature": (response.registers[18]-100.0)/100.0,#grad c
-                    "batt_charge": -1.1,#A
+                    "temperature": ((response.registers[18]/100.0)-1.0)/10.0,#grad c
+                    "batt_charge": (response.registers[22]-1000) / 100.0,#A
                     "asc_state":response.registers[20], #0 off 1 active 2 triggered
                     "asc_rest_dist": response.registers[19]/100.0,
-                    "emergencybrake":0, # 0 nicht 1 ausgeloesst
+                    "emergencybrake":response.registers[23], # 0 nicht 1 ausgeloesst
                     "emergencybrakereset":0,# 1 warte auf release
                     "kompressorstate":response.registers[17], # 0 = off  1= on 2= auto
                     "lightstate": response.registers[21],
-                    "kompressor_power_state":response.registers[16]#0=off 1=on
+                    "kompressor_power_state":response.registers[16],#0=off 1=on
+                    "hupe_state":1
 
                 }))
 

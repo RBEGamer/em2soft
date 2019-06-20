@@ -44,63 +44,71 @@
 
         <div class="row" style="border:2px solid white;">
 
+            <div class="col-md-1">
+                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="50"
+                    id="img_brkloes_two" onclick="change_brkloes(2)" />
+            </div>
+
 
             <div class="col-md-1 col-md-offset-1">
-                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
+                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="50"
                      id="img_v0" onclick="change_breakingstep(1);"/>
             </div>
             <div class="col-md-1">
-                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
+                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="50"
                      id="img_v1" onclick="change_breakingstep(2);"/>
             </div>
             <div class="col-md-1">
-                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
+                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="50"
                     id="img_v2" onclick="change_breakingstep(3);"/>
             </div>
             <div class="col-md-1">
-                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
+                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="50"
                      id="img_v3" onclick="change_breakingstep(4);"/>
             </div>
 
             <div class="col-md-1">
-                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
+                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="50"
                      id="img_fire" onclick="clear_fire_sound();"/>
             </div>
 
             <div class="col-md-1">
-                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
+                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="50"
                      id="img_direction" onclick="change_direction()" />
             </div>
 
             <div class="col-md-1">
-                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
+                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="50"
                     id="img_ctlmode" onclick="change_ctlmode()" />
             </div>
 
 
             <div class="col-md-1">
-                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
+                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="50"
                     id="img_asc" onclick="change_asc()" />
             </div>
 
 
              <div class="col-md-1">
-                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
+                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="50"
                      id="img_komp" onclick="change_kompressormode()" />
             </div>
 
 
+           
+
             <div class="col-md-1">
-                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
-                     id="img_light" onclick="change_lightmode()" />
+                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="50"
+                    id="img_hupe" />
+            </div>
+
+            <div class="col-md-1">
+                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="50"
+                    id="img_brkloes_one" onclick="change_brkloes(1)" />
             </div>
 
 
-            <div class="col-md-1">
-                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
-                    id="img_brkloes" onclick="change_brkloes()" />
-            </div>
-
+            
         </div>
 
 
@@ -198,6 +206,11 @@ var embrakeactivatedsound = new Audio('./audio/embrake_activated.mp3');
 
 var forwardsound = new Audio('./audio/forward.mp3');
 var backwardsound = new Audio('./audio/backward.mp3');
+
+
+var modecurrentsound = new Audio('./audio/mode_current.mp3');
+var moderpmsound = new Audio('./audio/mode_rpm.mp3');
+
 var directionchangesoundplayed = false;
 var last_direction = false;
     var last_guage_mode = "";
@@ -255,13 +268,44 @@ var last_direction = false;
             gauge_kmh.set(0); // set actual value
             //TODO SET KMH TEXT TO 0
 
+            var elem_hupe = document.getElementById('img_hupe');
+            
+            elem_hupe.addEventListener('touchstart',function(_event){
+                hupe(1);
+            });
 
+            elem_hupe.addEventListener('touchend',function(_event){
+                hupe(0);
+            });
 
+            elem_hupe.addEventListener('mousedown',function(_event){
+                hupe(1);
+            });
+
+            elem_hupe.addEventListener('mouseup',function(_event){
+                hupe(0);
+            });
+
+            document.addEventListener('keydown',function(event){
+                if(event.keyCode == 49){
+                    change_breakingstep(1);
+                }else if(event.keyCode == 50){
+                    change_breakingstep(2)
+                } if(event.keyCode == 51){
+                    change_breakingstep(3)
+                } if(event.keyCode == 52){
+                    change_breakingstep(4)
+                } if(event.keyCode == 48){
+                    change_breakingstep(0)
+                }
+
+            })
             var socket = null;
 
             var fire_detection_sound_intervall = null;
             var fire_detection_last_state = false;
             var fire_sound_cleared = false;
+            var chmoderpm_switched = false;
             //SET TO BG IMG_SIZE
             function change_direction() {
                 socket.emit('event', { 'event': 'dirch' });
@@ -286,9 +330,51 @@ var last_direction = false;
                 socket.emit('event', { 'event': 'lightmode' });
             }
 
-            function change_brkloes(){
-                socket.emit('event', { 'event': 'brkloes' });
+
+            var brkloes_one_ok = false;
+            var brkloes_two_ok = false;
+            var embrk_release_timer = false;
+            var embrk_release_timeout = null;
+            var embrk_timer_started = false;
+            var embrkok_ts = false;
+            function change_brkloes(_var){
+                if(!brkloes_one_ok && _var == 1){
+                    brkloes_one_ok = true;
+                   
+                }
+                if(!brkloes_two_ok && _var == 2){
+                    brkloes_two_ok = true;
+                   
+                }
+
+                if(brkloes_two_ok && brkloes_one_ok){
+                    if(!embrkok_ts){
+                        embrkok_ts = true;
+                        setTimeout(() => {
+                            brkloes_one_ok = false;
+                            brkloes_one_ok = false;
+                            socket.emit('event', { 'event': 'brkloes' });
+
+                            $("#img_brkloes_one").attr("src", "/img/new_icons/icon_150x150_Notbremse_bereit.png");
+                            $("#img_brkloes_two").attr("src", "/img/new_icons/icon_150x150_Notbremse_bereit.png");
+                           
+                        }, 1000);
+                    }         
+                }
+
+               
+               
+
+                //TODO
+              
                 // TODO !!!
+            }
+            
+
+
+            
+            function hupe(_state){
+                socket.emit('event', { 'event': 'hupe','state':_state });
             }
 
             function clear_fire_sound(){
@@ -300,6 +386,9 @@ var last_direction = false;
             }
            
 
+         //   $("#img_hupe").addEventListener('touchstart',function(event){alert('a');});
+       //     $("#img_hupe").addEventListener('touchend',function(event){alert('b');});
+           
 
             var gauge_two_mode = "bar"; //bar kn batt temp
 
@@ -320,7 +409,7 @@ var last_direction = false;
                 }else  if(_var == 4){
                      socket.emit('event', { 'event': 'brkstep4' });
                 }
-              
+               
             }
             function show_alert(_msg, _is_err = false) {
                 if (!_is_err) {
@@ -427,19 +516,51 @@ var last_direction = false;
                 }
 
 
-                if (_data.display.emergencybrake != undefined && _data.display.emergencybrake != null) {
-                    if (_data.display.emergencybrake == 0) {
-                        $("#img_brkloes").attr("src", "/img/new_icons/icon_150x150_Notbremse_bereit.png");
-                    } else if (_data.display.emergencybrake == 1) {
 
-                        if (_data.display.emergencybrakereset == 1) {
-                            $("#img_brkloes").attr("src", "/img/new_icons/icon_150x150_Notbremse_Rueckstellen.png");
-                        }else{
-                            $("#img_brkloes").attr("src", "/img/new_icons/icon_150x150_Notbremse_aktiv.png");
-                        }
+                if (_data.display.hupe_state != undefined && _data.display.hupe_state != null) {
+                    if (!_data.display.hupe_state) {
+                        $("#img_hupe").attr("src", "/img/new_icons/icon_150x150_horn_on.png");
+                    } else {
+                        $("#img_hupe").attr("src", "/img/new_icons/icon_150x150_horn_off.png");
                     }
                 } else {
-                    $("#img_brkloes").attr("src", "/img/new_icons/icon_150x150_undef.png");
+                    $("#img_hupe").attr("src", "/img/new_icons/icon_150x150_undef.png");
+                }
+
+                if (_data.display.emergencybrake != undefined && _data.display.emergencybrake != null) {
+                    if (_data.display.emergencybrake == 1) {
+                        $("#img_brkloes_one").attr("src", "/img/new_icons/icon_150x150_Notbremse_bereit.png");
+                        $("#img_brkloes_two").attr("src", "/img/new_icons/icon_150x150_Notbremse_bereit.png");
+                        brkloes_one_ok = false;
+                        brkloes_one_ok = false;
+                        embrk_release_timer = false;
+                        embrk_timer_started = false;
+                        embrkok_ts = false;
+                    } else if (_data.display.emergencybrake == 0) {
+
+                       // if (embrk_release_timer) {
+                            if(brkloes_one_ok){
+                                $("#img_brkloes_one").attr("src", "/img/new_icons/icon_150x150_Notbremse_bereit.png");
+                            }else{
+                                $("#img_brkloes_one").attr("src", "/img/new_icons/icon_150x150_Notbremse_Rueckstellen.png");
+                            }
+
+                            if(brkloes_two_ok){
+                               
+                                $("#img_brkloes_two").attr("src", "/img/new_icons/icon_150x150_Notbremse_bereit.png");
+                            }else{
+                                $("#img_brkloes_two").attr("src", "/img/new_icons/icon_150x150_Notbremse_Rueckstellen.png");
+                            }
+                     
+                    }
+                } else {
+                    $("#img_brkloes_one").attr("src", "/img/new_icons/icon_150x150_undef.png");
+                    $("#img_brkloes_two").attr("src", "/img/new_icons/icon_150x150_undef.png");
+                    brkloes_one_ok = false;
+                    brkloes_one_ok = false;
+                    embrk_release_timer = false;
+                    embrk_timer_started = false;
+                    embrkok_ts = false;
                 }
 
 
@@ -547,7 +668,7 @@ var last_direction = false;
                         opts_kn.colorStop = "#e755f4";
                         gauge_kn.setOptions(opts_kn);
                         gauge_kn.maxValue = 150.0;
-                        gauge_kn.setMinValue(0.0);
+                        gauge_kn.setMinValue(-150.0);
                     }
                 } else if (gauge_two_mode == "temp") {
                     $("#gauge_kn_text").html(String(_data.display.temperature) + " &deg;C");
@@ -573,10 +694,16 @@ var last_direction = false;
                         if (!chmodeicon_switched) {
                             sw_gauge_mode_two('kn');
                             chmodeicon_switched = true;
+                            modecurrentsound.play();
                         }
                     } else {
                         $("#img_ctlmode").attr("src", "/img/new_icons/icon_150x150_mode_rpm.png");
                         chmodeicon_switched = false;
+                        if(!chmoderpm_switched){
+                            chmoderpm_switched = true;
+                            moderpmsound.play();
+                        }
+                        
                     }
                 } else {
                     $("#img_ctlmode").attr("src", "/img/new_icons/icon_150x150_undef.png");
@@ -591,7 +718,7 @@ var last_direction = false;
 
                 if (_data.display.direction == 1) {
                     fahrtrichtungtext = "FORWARD";
-                    $("#img_direction").attr("src", "/img/new_icons/icon_150x150_Notbremse_vorwaerts.png");
+                    $("#img_direction").attr("src", "/img/new_icons/icon_150x150_direction_forward.png");
 
                     if(_data.display.direction != last_direction){
                         last_direction = _data.display.direction;
@@ -653,6 +780,7 @@ var last_direction = false;
                     //console.log(data);
                     parse_state_data(data)
                 });
+                socket.emit('event', { 'event': 'startup' });
             });
         </script>
 
