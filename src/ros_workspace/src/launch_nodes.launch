@@ -3,7 +3,7 @@
   
 
   
-<node pkg="modbusbridge" type="modbusbridge.py" name="modbusbridge.py">
+<node pkg="modbusbridge" type="modbusbridge.py" name="modbusbridge">
   <param name="modbus_ip" value="192.168.178.95" />
   <param name="refresh_rate" value="10" />
   <param name="modbus_port" value="5020" />
@@ -11,7 +11,7 @@
 
 
 
-<node pkg="remotecontrol" type="remotecontrol.py" name="remotecontrol.py">
+<node pkg="remotecontrol" type="remotecontrol.py" name="remotecontrol">
   <param name="serialport" value="/dev/ttyUSB0" />
   <param name="serialbaud" value="9600" />
   <param name="refresh_rate" value="10" />
