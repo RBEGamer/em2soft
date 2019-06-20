@@ -25,13 +25,13 @@ if __name__ == '__main__':
 
         rospy.Subscriber("fbstate", String, callback)
 
-        param_rate = rospy.get_param('refresh_rate', 10)
+        param_rate = rospy.get_param('refresh_rate', '10')
         param_port = rospy.get_param('serialport', '/dev/ttyUSB0')
-        param_baud = rospy.get_param('serialbaud', 9600)
+        param_baud = rospy.get_param('serialbaud', '9600')
 
-        rate = rospy.Rate(param_rate) # 10hz
+        rate = rospy.Rate(int(param_rate)) # 10hz
 
-        serial.Serial(param_port, param_baud) # Establish the connection on a specific port
+        serial.Serial(param_port, int(param_baud)) # Establish the connection on a specific port
 
 
         pub = rospy.Publisher('fromfb', String, queue_size=10)

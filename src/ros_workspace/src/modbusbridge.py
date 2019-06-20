@@ -117,14 +117,13 @@ if __name__ == '__main__':
         rospy.Subscriber("uimsg", String, callbackui)
         rospy.Subscriber("fromfb", String, callbackfb)
 
-        param_rate = rospy.get_param('refresh_rate', 10)
-        param_ip = rospy.get_param('modbus_port', 5020)
+        param_rate = rospy.get_param('refresh_rate', '10')
+        param_ip = rospy.get_param('modbus_port', '5020')
         param_port = rospy.get_param('modbus_ip', "192.168.1.17")
 
-        rate = rospy.Rate(param_rate) # 10hz
-#rospy.get_param('foo', 'default_value')
-        # client = ModbusTcpClient('192.168.1.17', port=5020)
-        client = ModbusTcpClient(param_ip, port=param_port)
+        rate = rospy.Rate(int(param_rate)) # 10hz
+
+        client = ModbusTcpClient(param_ip, port=int(param_port))
 
 
         pub = rospy.Publisher('state', String, queue_size=10)
