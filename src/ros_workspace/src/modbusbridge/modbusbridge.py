@@ -118,8 +118,8 @@ if __name__ == '__main__':
         rospy.Subscriber("fromfb", String, callbackfb)
 
         param_rate = rospy.get_param('refresh_rate', '10')
-        param_ip = rospy.get_param('modbus_port', '5020')
-        param_port = rospy.get_param('modbus_ip', "192.168.1.17")
+        param_port = rospy.get_param('modbus_port', '5020')
+        param_ip = rospy.get_param('modbus_ip', "192.168.178.95")
 
         rate = rospy.Rate(int(param_rate)) # 10hz
 

@@ -11,7 +11,7 @@ velsetpoint = 0
 breaksetpoint = 0
 
 ser = None
-
+import time
 
 def callback(data):
     #print('.')
@@ -31,7 +31,16 @@ if __name__ == '__main__':
 
         rate = rospy.Rate(int(param_rate)) # 10hz
 
-        serial.Serial(param_port, int(param_baud)) # Establish the connection on a specific port
+        con_ok = False
+
+        while not con_ok:
+            try:
+                serial.Serial(param_port, int(param_baud))
+                con_ok = True
+            except:
+                con_ok = False
+        time.sleep(10)
+        
 
 
         pub = rospy.Publisher('fromfb', String, queue_size=10)
@@ -82,7 +91,7 @@ if __name__ == '__main__':
                     }))
 
             except:
-                rospy.loginfo("modbus_error")
+                rospy.loginfo("serial_error")
             rate.sleep()
 
     except rospy.ROSInterruptException:

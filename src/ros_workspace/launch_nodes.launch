@@ -15,8 +15,8 @@
   <param name="serialport" value="/dev/ttyUSB0" />
   <param name="serialbaud" value="9600" />
   <param name="refresh_rate" value="10" />
+</node>
 
- </node>
 
 
 </launch>
