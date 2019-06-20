@@ -369,7 +369,12 @@ var last_direction = false;
               
                 // TODO !!!
             }
+            
 
+
+            function  send_notbremse(){
+                socket.emit('event', { 'event': 'trigger_embrk' });
+            }
             function hupe(_state){
                 socket.emit('event', { 'event': 'hupe','state':_state });
             }

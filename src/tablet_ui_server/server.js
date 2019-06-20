@@ -140,6 +140,11 @@ app.get('/', function (req, res) {
 });
 
 
+app.get('/break', function (req, res) {
+    sess = req.session;
+    res.render('emergencyctl.ejs', {
+    });
+});
 
 
 
