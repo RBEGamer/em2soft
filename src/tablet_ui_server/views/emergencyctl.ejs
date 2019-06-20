@@ -62,7 +62,7 @@
         var socket = null;
 
         function  send_notbremse(){
-                socket.emit('event', { 'event': 'trigger_embrk' });
+                socket.emit('event', { 'event': 'embreak' });
             }
             function hupe(_state){
                 socket.emit('event', { 'event': 'hupe','state':_state });

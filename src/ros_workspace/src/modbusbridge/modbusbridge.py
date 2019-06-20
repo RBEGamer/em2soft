@@ -47,9 +47,10 @@ def callbackui(data):
 
     if (tmp['event'] == 'embreak'):
         print('embreak event')
-
+        client.write_register(22,1, unit = 1)
     if (tmp['event'] == 'lightmode'):
         print('lightmode event')
+        client.write_register(23,1, unit = 1)
 
 
     if (tmp['event'] == 'brkstep0'):
