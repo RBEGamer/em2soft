@@ -99,12 +99,18 @@ def callbackui(data):
 
 
 
-
+last_state_hupe = False
 def callbackfb(data):
     rospy.loginfo(rospy.get_caller_id() + "I heard %s", data.data)
     tmp = json.loads(data.data)
     #print(tmp['breaklevel'])
     client.write_register(0,int(tmp['breaklevel']), unit = 1) #WRITE BREAKLEVEL TO REISTER 0^
+
+    if(tmp['hupe'] and last_state_hupe not tmp['hupe']):
+        last_state_hupe  = tmp['hupe']
+        client.write_coil(7,last_state_hupe, unit=1)
+
+
 
 
 

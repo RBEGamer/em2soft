@@ -284,4 +284,5 @@ void loop()
 
     send_to_ctl[0] = curr_vel;
     send_to_ctl[1] = curr_bk;
+    send_to_ctl[5] = hupe;
 }

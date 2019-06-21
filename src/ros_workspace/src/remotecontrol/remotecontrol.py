@@ -40,7 +40,7 @@ if __name__ == '__main__':
             except:
                 con_ok = False
         time.sleep(10)
-        
+
 
 
         pub = rospy.Publisher('fromfb', String, queue_size=10)
@@ -59,8 +59,12 @@ if __name__ == '__main__':
                     pass
                 velsetpoint = line[2]
                 breaksetpoint = line[3]
+                hupe = line[7]
 
-
+                if(hupe == "1"):
+                    hupe = True
+                else:
+                    hupe = False
                 #CALC BREAKLEVEL
                 was_error = False
                 if(breaksetpoint >80):
@@ -88,6 +92,7 @@ if __name__ == '__main__':
                     json.dumps({
                         "breaklevel": breaksetpoint,
                         "velocity": velsetpoint,
+                        "hupe": hupe
                     }))
 
             except:
