@@ -1,7 +1,39 @@
 /********************************************************
- * PID Basic Example
- * Reading analog input 0 to control analog PWM output 3
+ * PID Adaptive Tuning Example
+ * One of the benefits of the PID library is that you can
+ * change the tuning parameters at any time.  this can be
+ * helpful if we want the controller to be agressive at some
+ * times, and conservative at others.   in the example below
+ * we set the controller to use Conservative Tuning Parameters
+ * when we're near setpoint and more agressive Tuning
+ * Parameters when we're farther away.
  ********************************************************/
+
+
+#define PIN_INPUT_VEL 1
+#define PIN_INPUT_BRK 2
+
+#define PIN_OUTPUT 9
+#define PIN_OUTPUT_B 5
+
+
+#define PIN_OUTPUT_VEL 3
+#define PIN_OUTPUT_B_VEL 6
+
+
+//Define Variables we'll be connecting to
+double Setpoint_BRK, Input_BTK, Output_BRK;
+double Setpoint_VEL, Input_VEL, Output_VEL;
+int curr_bk = 0;
+double gap_brk = 0.0;
+bool fw_btk = false;
+
+
+int curr_vel = 0;
+double gap_vel = 0.0;
+bool fw_vel = false;
+bool hupe = false;
+
 
 #include<SPI.h>
 #include<nRF24L01.h>
@@ -25,6 +57,8 @@ union crc_data
    byte bytes[2];
 };
 
+
+
 unsigned short crc16(const unsigned char* data_p, unsigned char length){
     unsigned char x;
     unsigned short crc = 0xFFFF;
@@ -36,67 +70,11 @@ unsigned short crc16(const unsigned char* data_p, unsigned char length){
     return crc;
 }
 
-
-
-
-
-
-#include <PID_v1.h>
-
-#define PIN_INPUT_VEL A1 //analog input for velocity slider
-#define PIN_INPUT_BRK A2 //analog input for break slider
-
-#define PIN_OUTPUT_B 3
-#define PIN_OUTPUT_A 6
-
-#define PIN_OUTPUT_B_BRK 9
-#define PIN_OUTPUT_A_BRK 5
-//Define Variables we'll be connecting to
-double Setpoint_VEL,Setpoint_BRK, Input_VEL,Input2_VEL,Input_BRK,Input2_BRK, Output_VEL,Output_BRK;
-
-//Specify the links and initial tuning parameters
-double Kp=5.9, Ki=3.6, Kd=0.0;
-PID myPID(&Input_VEL, &Output_VEL, &Setpoint_VEL, Kp, Ki, Kd, DIRECT);
-PID myPID2(&Input2_VEL, &Output_VEL, &Setpoint_VEL, Kp, Ki, Kd, DIRECT);
-
-PID myPID_BRK(&Input_BRK, &Output_BRK, &Setpoint_BRK, Kp, Ki, Kd, DIRECT);
-PID myPID2_BRK(&Input2_BRK, &Output_BRK, &Setpoint_BRK, Kp, Ki, Kd, DIRECT);
-
-
-
-#define PIN_BUTTON_HUPE A3
-#define PIN_LED_NOTAUS A4
-
-
-int hapitc_feedback_strengh = 100;
-int current_haptic_feedback = 100;
-
-
-
-  void hf_max(){
-  current_haptic_feedback = 255;
-  myPID.SetOutputLimits(0, current_haptic_feedback);
-myPID2.SetOutputLimits(0, current_haptic_feedback);
-  myPID_BRK.SetOutputLimits(0, current_haptic_feedback);
-myPID2_BRK.SetOutputLimits(0, current_haptic_feedback);
-  }
-
-
-
-int hf_mode = 0;
-
 unsigned long startMillis;
-unsigned long led_blink_milis = 0;
-bool led_blink_state = false;
+
 void setup()
 {
-const byte address[6] = "00002";
- // Wire.begin(9);
-//   Wire.onReceive(receiveEvent);
-  Serial.begin(9600);
-  pinMode(PIN_BUTTON_HUPE,INPUT_PULLUP);
-  pinMode(PIN_LED_NOTAUS, OUTPUT);
-  digitalWrite(PIN_LED_NOTAUS, LOW);
+
   radio.begin();
   delay(1000);
   radio.setPALevel(RF24_PA_MAX);
@@ -106,94 +84,162 @@ const byte address[6] = "00002";
 
   
   //initialize the variables we're linked to
-  Input_VEL = map(analogRead(PIN_INPUT_VEL), 0, 1024, 0, 100);
-   Input_BRK = map(analogRead(PIN_INPUT_BRK), 0, 1024, 0, 100);
-   
-  Setpoint_VEL = 50;
-  Setpoint_BRK = 50;
-rec_from_ctl[0] = 1;
-rec_from_ctl[2] = 1;
+  Input_BTK = analogRead(PIN_INPUT_BRK);
+  Input_VEL = analogRead(PIN_INPUT_VEL);
+ 
+  set_bk(0); //0-4
+  set_vel(0); //0-100
+Serial.begin(9600);
 
-   analogWrite(PIN_OUTPUT_A, 0);
-   analogWrite(PIN_OUTPUT_B, 0);
-   analogWrite(PIN_OUTPUT_A_BRK, 0);
-   analogWrite(PIN_OUTPUT_B_BRK, 0);
-   hf_max();
-  //turn the PID on
-    myPID.SetMode(AUTOMATIC);
-    myPID2.SetMode(AUTOMATIC);
-    myPID_BRK.SetMode(AUTOMATIC);
-    myPID2_BRK.SetMode(AUTOMATIC);
-    startMillis = millis();
-
-    Serial.println("__BEGIN__");
+Serial.println("__BEGIN__");
 }
 
+bool brk_ovr = false;
+bool vel_ovr = false;
 
-bool wait_for_reset = false;
 
-String readString = "";
+void set_vel(int vel){
+  if(vel > 100){vel = 100;}
+  if(vel < 0){vel = 0;}
+  vel = 100-vel;
+
+  if(vel < 10){vel = 0;}
+Setpoint_VEL = map(vel,0,100,20,1000);
+
+ vel_ovr = true;
+  }
+
+
+  void process_vel(){
+
+    Input_VEL = analogRead(PIN_INPUT_VEL);
+
+  gap_vel = abs(Setpoint_VEL-Input_VEL); //distance away from setpoint
+  fw_vel = (Setpoint_VEL-Input_VEL)>0;
+  if(gap_vel >50 && fw_vel){
+  analogWrite(PIN_OUTPUT_VEL, 230);
+  }else if(gap_vel >20 && fw_vel){
+  analogWrite(PIN_OUTPUT_VEL, 200);
+  }else{
+    analogWrite(PIN_OUTPUT_VEL, 0);
+   }
+    
+  if(gap_vel >50 && !fw_vel){
+  analogWrite(PIN_OUTPUT_B_VEL, 230);
+  }else if(gap_vel >30 && !fw_vel){
+  analogWrite(PIN_OUTPUT_B_VEL, 200);
+  }else{
+    analogWrite(PIN_OUTPUT_B_VEL, 0);
+   }
+
+
+  if(vel_ovr && gap_brk< 5){
+      vel_ovr = false;
+      }
+      
+if(!vel_ovr){
+   Setpoint_VEL=Input_VEL;
+  }
+ 
+  
+curr_vel = map(Input_VEL,0,2014,0,100);
+
+    }
+
+void set_bk(int _bk){
+  if(_bk == 0){
+    Setpoint_BRK =905;
+    }else if(_bk == 1){
+    Setpoint_BRK =705;
+    }else if(_bk == 2){
+    Setpoint_BRK =505;
+    }else if(_bk == 3){
+    Setpoint_BRK =305;
+    }else if(_bk == 4){
+    Setpoint_BRK =105;
+    }
+    brk_ovr = true;
+  }
+
+
+
+
+
+  void process_bk(){
+
+    Input_BTK = analogRead(PIN_INPUT_BRK);
+
+  gap_brk = abs(Setpoint_BRK-Input_BTK); //distance away from setpoint
+  fw_btk = (Setpoint_BRK-Input_BTK)>0;
+  if(gap_brk >50 && fw_btk){
+  analogWrite(PIN_OUTPUT, 220);
+  }else if(gap_brk >20 && fw_btk){
+  analogWrite(PIN_OUTPUT, 190);
+  }else{
+    analogWrite(PIN_OUTPUT, 0);
+
+   
+   }
+    
+  if(gap_brk >50 && !fw_btk){
+  analogWrite(PIN_OUTPUT_B, 220);
+  }else if(gap_brk >20 && !fw_btk){
+  analogWrite(PIN_OUTPUT_B, 190);
+  }else{
+    analogWrite(PIN_OUTPUT_B, 0);
+    
+   }
+
+   if(brk_ovr && gap_brk< 5){
+      brk_ovr = false;
+      }
+
+      
+   if(Input_BTK > 915){
+    Setpoint_BRK =905;
+    hupe = true;
+    }else{
+      hupe = false;
+      }
+
+
+  if(!brk_ovr){
+  if(Input_BTK < 110 && Input_BTK >80){
+    Setpoint_BRK =105;
+    curr_bk = 4;
+    }
+
+     if(Input_BTK <310 && Input_BTK >280){
+    Setpoint_BRK =305;
+    curr_bk = 3;
+    }
+
+     if(Input_BTK <510 && Input_BTK >480){
+    Setpoint_BRK =505;
+    curr_bk = 2;
+    }
+
+      if(Input_BTK <710 && Input_BTK >680){
+    Setpoint_BRK =705;
+    curr_bk = 1;
+    }
+
+  if(Input_BTK <910 && Input_BTK >900){
+    Setpoint_BRK =905;
+    curr_bk = 0;
+    }
+  }else{
+
+
+    }
+
+
+    }
 void loop()
 {
 
 
- while (Serial.available())
-    {
-        delay(3); //delay to allow buffer to fill
-        if (Serial.available() > 0)
-        {
-            char c = Serial.read(); //gets one byte from serial buffer
-            readString += c;        //makes the string readString
-        }
-}
-
-
-if (readString.length() > 0)
-    {
-  
-         Setpoint_VEL = getValue(readString, '_', 1).toInt();
-  Setpoint_BRK = getValue(readString, '_', 2).toInt();
-rec_from_ctl[0] = 1;
-rec_from_ctl[2] = 1;
-
-        
-}
-
-
-
-Input_VEL = map(analogRead(PIN_INPUT_VEL), 0, 1024, 0, 100);
-Input2_VEL = 100-Input_VEL;
-Input_BRK = map(analogRead(PIN_INPUT_BRK), 0, 1024, 0, 100);
-Input2_BRK = 100-Input_BRK;
-send_to_ctl[0] = Input_VEL;
-send_to_ctl[1] = Input_BRK;
-
-
-//WAIT FOR RESET LOGIC
-//if(wait_for_reset){
-  //vel in mittelstellung; federspeicehr angelegt
-  //if(Input_VEL > 48 && Input_VEL < 52 && Input_BRK > 90){
-  send_to_ctl[4] = 1;
-  //digitalWrite(PIN_LED_NOTAUS, LOW);
-  //Serial.println("wfr condition ok");
-  wait_for_reset = false;   
-  //hf_normal();
-  //  }
-//
-//if(millis()-led_blink_milis > 150){
- // led_blink_milis = millis();
- // led_blink_state = !led_blink_state;
- // digitalWrite(PIN_LED_NOTAUS, led_blink_state);  
- // } 
- // }
-
-
-
-
-
-
-
-if (millis() - startMillis >= 50)  //test whether the period has elapsed
+  if (millis() - startMillis >= 50)  //test whether the period has elapsed
   {
     radio.stopListening();
     delay(20);
@@ -223,90 +269,19 @@ if (millis() - startMillis >= 50)  //test whether the period has elapsed
         crcctlrec.bytes[1] = rec_from_ctl[sizeof(rec_from_ctl)-1];
     
         if(crc_from_ctl == crcctlrec.value){
-          Setpoint_VEL = rec_from_ctl[1];
-          Setpoint_BRK = rec_from_ctl[3];
+          set_vel(rec_from_ctl[1]);
+          set_bk(rec_from_ctl[3]);
        
-             Serial.println(String(Setpoint_BRK) + "-" + String(Input_BRK));
-          
-          if(rec_from_ctl[0] == 0){
-          analogWrite(PIN_OUTPUT_A, 0);
-          analogWrite(PIN_OUTPUT_B, 0);
-          }
-
-          if(rec_from_ctl[2] == 0){
-          analogWrite(PIN_OUTPUT_A_BRK, 0);
-          analogWrite(PIN_OUTPUT_B_BRK, 0);
-          }
-          
-          //led show notaus
-          if(rec_from_ctl[4]  >0){
-            digitalWrite(PIN_LED_NOTAUS,HIGH);
-            }
-          
+  
           }else{
-            Serial.println("crc err");}
+            Serial.println("__CRC_ERR__");}
    
       }
- 
-  
 
-   
+      
+    process_bk();
+    process_vel();
 
-Serial.println("_"+String(Input_BRK) + "_" + String(Setpoint_BRK) + "_"+String(Input_VEL) + "_" + String(Setpoint_VEL) + "_" + String(rec_from_ctl[2]) + "_" + String(rec_from_ctl[0]) + "_");
-
-if(rec_from_ctl[2] > 0){
-if(abs(Setpoint_BRK-Input_BRK)< 3){
-   analogWrite(PIN_OUTPUT_A_BRK, 0);
-   analogWrite(PIN_OUTPUT_B_BRK, 0);
-   rec_from_ctl[2] = 0;
-  }else if((Setpoint_BRK-Input_BRK)> 0){ 
-    myPID_BRK.Compute();
-   analogWrite(PIN_OUTPUT_A_BRK, 0);
-   analogWrite(PIN_OUTPUT_B_BRK, Output_BRK);
-}else if((Setpoint_BRK-Input_BRK)< 0){ 
-    myPID2_BRK.Compute();
-   analogWrite(PIN_OUTPUT_B_BRK, 0);
-   analogWrite(PIN_OUTPUT_A_BRK, Output_BRK);
-}  
-}
-
-
-
-//PID CTL FOR VELOCITY SLIDER
-if(rec_from_ctl[0] > 0){
-if(abs(Setpoint_VEL-Input_VEL)< 3){
-   analogWrite(PIN_OUTPUT_A, 0);
-   analogWrite(PIN_OUTPUT_B, 0);
-   rec_from_ctl[0] = 0;
-  } else if((Setpoint_VEL-Input_VEL)> 0){ 
-    myPID.Compute();
-   analogWrite(PIN_OUTPUT_A, 0);
-   analogWrite(PIN_OUTPUT_B, abs(Output_VEL));
-}else if((Setpoint_VEL-Input_VEL)< 0){ 
-    myPID2.Compute();
-   analogWrite(PIN_OUTPUT_B, 0);
-   analogWrite(PIN_OUTPUT_A, abs(Output_VEL));
-}  
- }
-
-
-}
-
-
-String getValue(String data, char separator, int index)
-{
-    int found = 0;
-    int strIndex[] = {
-        0, -1};
-    int maxIndex = data.length() - 1;
-    for (int i = 0; i <= maxIndex && found <= index; i++)
-    {
-        if (data.charAt(i) == separator || i == maxIndex)
-        {
-            found++;
-            strIndex[0] = strIndex[1] + 1;
-            strIndex[1] = (i == maxIndex) ? i + 1 : i;
-        }
-    }
-    return found > index ? data.substring(strIndex[0], strIndex[1]) : "";
+    send_to_ctl[0] = curr_vel;
+    send_to_ctl[1] = curr_bk;
 }
