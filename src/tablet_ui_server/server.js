@@ -80,7 +80,7 @@ rosnodejs.initNode('/tablet_node')
         // Create ROS subscriber on the 'chatter' topic expecting String messages
         let sub = rosNode.subscribe('state', std_msgs.String,
             (data) => { // define callback execution
-                 rosnodejs.log.info('broadcast I heard: [' + data.data + ']');
+              //   rosnodejs.log.info('broadcast I heard: [' + data.data + ']');
 
                 var json = data.data;
                 try {
