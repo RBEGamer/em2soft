@@ -126,16 +126,6 @@ void setup()
   send_fb_default();
 
 
- // while (CAN_OK != CAN.begin(CAN_250KBPS))
-   // {
-     //   Serial.println("CAN BUS init Failed");
-       // delay(300);
-   //     heartbeat_state = !heartbeat_state;
-     //    digitalWrite(PIN_HEARTBEAT, heartbeat_state);
-       //   digitalWrite(PIN_NOTAUS_RELAIS,NOTAUS_RELAIS_ACTIVE);
-    
-   // }
-//Serial.println("CAN BUS Shield Init OK!");
 
 
   mili_timer_crc = millis();
@@ -196,18 +186,18 @@ if(fb_reset_ok){
  // Serial.println(rec_from_fb[0]);
    
    bool is_ebraking = false;
-   byte vel_amount = 0;
+   byte vel_amount = rec_from_fb[0];
    byte ebrk_amount = 0;
-   byte pneu_brake = map(rec_from_fb[1],0,100,0,3);
+   byte pneu_brake = map(rec_from_fb[1],0,100,0,4);
    
-   if(rec_from_fb[0] < 50){
-      is_ebraking = true;
-      vel_amount = 0;
-      ebrk_amount = map(rec_from_fb[0],0,49,0,100);
-   }else{
-      ebrk_amount = 0;
-      vel_amount = map(rec_from_fb[0],50,100,0,100);
-   }
+ //  if(rec_from_fb[0] < 50){
+ //     is_ebraking = true;
+ //     vel_amount = 0;
+ //     ebrk_amount = map(rec_from_fb[0],0,49,0,100);
+//   }else{
+//      ebrk_amount = 0;
+//      vel_amount = map(rec_from_fb[0],50,100,0,100);
+//   }
   
    
    
