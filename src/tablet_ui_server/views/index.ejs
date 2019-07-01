@@ -4,7 +4,7 @@
 
 
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=0.8, shrink-to-fit=yes, user-scalable=no">
     <meta name="description" content="">
     <meta name="author" content="">
     <title>LC</title>
@@ -45,61 +45,66 @@
         <div class="row" style="border:2px solid white;">
 
             <div class="col-md-1">
-                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="50"
+                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
                     id="img_brkloes_two" onclick="change_brkloes(2)" />
             </div>
 
 
             <div class="col-md-1 col-md-offset-1">
-                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="50"
+                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
                      id="img_v0" onclick="change_breakingstep(1);"/>
             </div>
             <div class="col-md-1">
-                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="50"
+                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
                      id="img_v1" onclick="change_breakingstep(2);"/>
             </div>
             <div class="col-md-1">
-                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="50"
+                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
                     id="img_v2" onclick="change_breakingstep(3);"/>
             </div>
             <div class="col-md-1">
-                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="50"
+                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
                      id="img_v3" onclick="change_breakingstep(4);"/>
             </div>
 
             <div class="col-md-1">
-                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="50"
+                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
                      id="img_fire" onclick="clear_fire_sound();"/>
             </div>
 
             <div class="col-md-1">
-                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="50"
+                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
                      id="img_direction" onclick="change_direction()" />
             </div>
 
             <div class="col-md-1">
-                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="50"
+                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
                     id="img_ctlmode" onclick="change_ctlmode()" />
             </div>
 
 
             <div class="col-md-1">
-                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="50"
+                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
                     id="img_asc" onclick="change_asc()" />
             </div>
 
 
              <div class="col-md-1">
-                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="50"
+                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
                      id="img_komp" onclick="change_kompressormode()" />
             </div>
 
+
+            <div class="col-md-1">
+                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
+                     id="img_engery" onclick="change_engmode()" />
+            </div>
 
            
 
             
             <div class="col-md-1">
-                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="50"
+                <img class="img-responsive" src="/img/new_icons/icon_150x150_undef.png" width="75"
                     id="img_brkloes_one" onclick="change_brkloes(1)" />
             </div>
 
@@ -147,23 +152,26 @@
                 <button type="button" class="btn btn-info" id="chgaugtwo_temp" onclick="sw_gauge_mode_two('temp');">TEMPERATURE</button>
 
                 <button type="button" class="btn btn-info" id="chgaugtwo_bar" onclick="sw_gauge_mode_two('bar');">PRESSURE</button>
+
+
+
+                
             </div>
         </div>
 
 
         <div class="row">
             <div class="col-md-6 col-md-offset-1" >
-                <img class="img-responsive img-center" src="/img/new_icons/icon_512x128_Notbremse.png"  id="img_notbremse" onclick="send_notbremse()" />
+                <img class="img-responsive img-center" src="/img/new_icons/icon_512x128_Notbremse.png" width="400" id="img_notbremse" onclick="send_notbremse()" />
             </div>
 
             <div class="col-md-6 col-md-offset-1" >
-                    <img class="img-responsive img-center" src="/img/new_icons/icon_512x128_hupe_big.png"  id="img_hupe" onclick="hupe()" />
+                    <img class="img-responsive img-center" width="400" src="/img/new_icons/icon_512x128_hupe_big.png"  id="img_hupe" onmousedown="hupe(1)" onmouseup="hupe(0)" />
                 </div>
         </div>
 
 
-       
-        id="img_hupe"
+      
 
         <div class="row">
             <div class="col-md-12 col-md-offset-1" style="border:2px solid white;" id="alert_box">
@@ -210,6 +218,10 @@ var modecurrentsound = new Audio('./audio/mode_current.mp3');
 var moderpmsound = new Audio('./audio/mode_rpm.mp3');
 
 var directionchangesoundplayed = false;
+
+var last_breaklevel = -1;
+
+
 var last_direction = false;
     var last_guage_mode = "";
             var opts_kmh = {
@@ -260,7 +272,7 @@ var last_direction = false;
 
             var target2 = document.getElementById('canvas1'); // your canvas element
             var gauge_kmh = new Gauge(target2).setOptions(opts_kmh); // create sexy gauge!
-            gauge_kmh.maxValue = 15.5; // set max gauge value
+            gauge_kmh.maxValue = 15.0; // set max gauge value
             gauge_kmh.setMinValue(0);  // Prefer setter over gauge.minValue = 0
             gauge_kmh.animationSpeed = 32; // set animation speed (32 is default value)
             gauge_kmh.set(0); // set actual value
@@ -305,29 +317,49 @@ var last_direction = false;
             var fire_sound_cleared = false;
             var chmoderpm_switched = false;
             //SET TO BG IMG_SIZE
+             var enmodecc = 0;
+
             function change_direction() {
                 socket.emit('event', { 'event': 'dirch' });
+                enmodecc = 0;
             }
 
             function change_ctlmode() {
                 socket.emit('event', { 'event': 'ctlmode' });
+                enmodecc =0; 
             }
             function change_asc() {
                 socket.emit('event', { 'event': 'asc' });
+                enmodecc =0;
             }
 
             function change_kompressormode(){
                 socket.emit('event', { 'event': 'kompmode' });
+                enmodecc = 0;
             }
+
 
             function send_notbremse(){
                 socket.emit('event', { 'event': 'embreak' });
+                enmodecc =0;
             }
 
             function change_lightmode(){
                 socket.emit('event', { 'event': 'lightmode' });
+                enmodecc = 0;
             }
 
+           
+            function change_engmode(){
+                enmodecc++;
+
+                if(enmodecc > 1){
+                    socket.emit('event', { 'event': 'engmode' });
+                    enmodecc = 0;
+
+                }
+                
+            }
 
             var brkloes_one_ok = false;
             var brkloes_two_ok = false;
@@ -336,6 +368,10 @@ var last_direction = false;
             var embrk_timer_started = false;
             var embrkok_ts = false;
             function change_brkloes(_var){
+                 if(last_breaklevel != -4){
+                         show_alert("PLEASE SET BREAKLEVEL TO 4", true);
+                    }
+                enmodecc =0;
                 if(!brkloes_one_ok && _var == 1){
                     brkloes_one_ok = true;
                    
@@ -346,6 +382,7 @@ var last_direction = false;
                 }
 
                 if(brkloes_two_ok && brkloes_one_ok){
+                   
                     if(!embrkok_ts){
                         embrkok_ts = true;
                         setTimeout(() => {
@@ -355,7 +392,7 @@ var last_direction = false;
 
                             $("#img_brkloes_one").attr("src", "/img/new_icons/icon_150x150_Notbremse_bereit.png");
                             $("#img_brkloes_two").attr("src", "/img/new_icons/icon_150x150_Notbremse_bereit.png");
-                           
+                           show_alert("",false);
                         }, 1000);
                     }         
                 }
@@ -443,6 +480,13 @@ var last_direction = false;
                 console.log(_data);
 
                 //UPDATE GAUGES
+                if (_data.display.breaklevel != undefined && _data.display.breaklevel != null) {
+                    last_breaklevel = _data.display.breaklevel;
+                }
+                
+
+
+
 
                 if (_data.display.lightstate != undefined && _data.display.lightstate != null) {
                     if (_data.display.lightstate) {
@@ -529,8 +573,11 @@ var last_direction = false;
                     if (_data.display.emergencybrake == 1) {
                         $("#img_brkloes_one").attr("src", "/img/new_icons/icon_150x150_Notbremse_bereit.png");
                         $("#img_brkloes_two").attr("src", "/img/new_icons/icon_150x150_Notbremse_bereit.png");
+
+      
+                           
                         brkloes_one_ok = false;
-                        brkloes_one_ok = false;
+                        brkloes_two_ok = false;
                         embrk_release_timer = false;
                         embrk_timer_started = false;
                         embrkok_ts = false;
@@ -562,8 +609,16 @@ var last_direction = false;
                 }
 
 
-                
-
+                 //icon_150x150_energyrecovery_off.png img_engery   
+                 if (_data.display.storemode != undefined && _data.display.storemode != null) {
+                     if(_data.display.storemode == 0){
+                         $("#img_engery").attr("src", "/img/new_icons/icon_150x150_energyrecovery_off.png");
+                     }else if(_data.display.storemode == 1){
+                          $("#img_engery").attr("src", "/img/new_icons/icon_150x150_energyrecovery_in.png");
+                    }else if(_data.display.storemode == 2){
+                          $("#img_engery").attr("src", "/img/new_icons/icon_150x150_energyrecovery_out.png");
+                    }
+                 }
                 if (_data.display.fire_detcted != undefined && _data.display.fire_detcted != null) {
                     if (_data.display.fire_detcted) {
                         $("#img_fire").attr("src", "/img/new_icons/icon_150x150_fire_on_a.png");
@@ -608,6 +663,12 @@ var last_direction = false;
 
 
 
+                if(_data.display.storedenergy != undefined && _data.display.storedenergy != null){
+                    if(_data.display.storedenergy > 0.0){
+                        $("#dist_left_box_cont").html("<span style='color: #FFFFFF;font-size:24px;'>" + "STORED ENERGY : <b>" + _data.display.storedenergy + "</b>  Wh" + "</span>");
+                    }
+                }
+
 
                 if (_data.display.asc_state != undefined && _data.display.asc_state != null) {
                     if (_data.display.asc_state == 0) {
@@ -621,7 +682,7 @@ var last_direction = false;
                     if (_data.display.asc_rest_dist != undefined && _data.display.asc_rest_dist != null &&  _data.display.asc_state == 2) { 
                         $("#dist_left_box_cont").html("<span style='color: #FFFFFF;font-size:24px;'>" + "DISTANCE TO STOP LEFT : <b>" + _data.display.asc_rest_dist + "</b> m" + "</span>");
                     }else{
-                        $("#dist_left_box_cont").html("");
+                        //$("#dist_left_box_cont").html("");
                     }
                 } else {
                     $("#img_asc").attr("src", "/img/new_icons/icon_150x150_undef.png");
@@ -634,15 +695,19 @@ var last_direction = false;
 //TODO BATTER RÜCKSPEISUN EINBAUEN + RESET + AUF DEFAULT WERT SETZTEN
 
                 if (gauge_two_mode == "kn") {
-                    $("#gauge_kn_text").html(String(_data.display.kn) + " N");
-                    gauge_kn.set(_data.display.kn); // set actual value
-                    if(last_guage_mode != gauge_two_mode){
+
+                    if((_data.display.kn*0.001)<60.0){
+                        $("#gauge_kn_text").html(String(_data.display.kn*0.001) + " KN");
+                        gauge_kn.set(_data.display.kn*0.001); // set actual value
+                    }
+                   
+                    if(last_guage_mode != gauge_two_mode ){
                         last_guage_mode = gauge_two_mode;
                         opts_kn.colorStart = "#aa772a";
                         opts_kn.colorStop = "#aa772a";
                         gauge_kn.setOptions(opts_kn);
-                        gauge_kn.maxValue = 1000.0;
-                        gauge_kn.setMinValue(-1000.0);
+                        gauge_kn.maxValue = 10.0;
+                        gauge_kn.setMinValue(-10.0);
                     }
                    
                 } else if (gauge_two_mode == "bar") {
@@ -658,15 +723,15 @@ var last_direction = false;
                        
                     }
                 } else if (gauge_two_mode == "batt") {
-                    $("#gauge_kn_text").html(String(_data.display.batt_charge) + " A");
+                    $("#gauge_kn_text").html(String(_data.display.batt_charge) + " V");
                     gauge_kn.set(_data.display.batt_charge); // set actual value
                     if(last_guage_mode != gauge_two_mode){
                         last_guage_mode = gauge_two_mode;
                         opts_kn.colorStart = "#e755f4";
                         opts_kn.colorStop = "#e755f4";
                         gauge_kn.setOptions(opts_kn);
-                        gauge_kn.maxValue = 150.0;
-                        gauge_kn.setMinValue(-150.0);
+                        gauge_kn.maxValue = 55.0;
+                        gauge_kn.setMinValue(40.0);
                     }
                 } else if (gauge_two_mode == "temp") {
                     $("#gauge_kn_text").html(String(_data.display.temperature) + " &deg;C");
@@ -709,8 +774,12 @@ var last_direction = false;
 
 
                 if (_data.display.kmh != undefined && _data.display.kmh != null) {
+                    if(_data.display.kmh > 15.0){
+                        _data.display.kmh = 15.0;
+                    }
                     gauge_kmh.set(_data.display.kmh);
-                    $("#gauge_kmh_text").html(String(_data.display.kmh) + " KMH");
+                    
+                    $("#gauge_kmh_text").html(String(_data.display.kmh) + " KMH" + "  |  " + _data.display.vellevl);
                 }
 
 
