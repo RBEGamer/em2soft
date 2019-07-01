@@ -118,7 +118,10 @@ rosnodejs.initNode('/tablet_node')
                         lightstate: json.lightstate,
                         kompressor_power_state:json.kompressor_power_state,
                         emergencybrakereset:json.emergencybrakereset,
-                        hupe_state:json.hupe_state
+                        hupe_state:json.hupe_state,
+                        storedenergy: json.storedenergy,
+                        storemode: json.storemode,
+                        vellevl: json.vellevl
 
                     }
                 });
@@ -146,7 +149,11 @@ app.get('/break', function (req, res) {
     });
 });
 
-
+app.get('/hupe', function (req, res) {
+    sess = req.session;
+    res.render('hupe.ejs', {
+    });
+});
 
 
 io.on('connection', (socket) => {
@@ -157,7 +164,10 @@ io.on('connection', (socket) => {
 
 
     socket.on('event', function (_msg) {
-        console.log(_msg.event + ' event');
+        if (_msg.state == undefined){
+            _msg.state = -1;
+        }
+        console.log(JSON.stringify(_msg )+ ' event');
         if (pub != null) {
             var msg = new std_msgs.String();
             msg.data = JSON.stringify(_msg);
