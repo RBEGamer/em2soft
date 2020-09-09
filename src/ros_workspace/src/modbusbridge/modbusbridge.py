@@ -1,34 +1,64 @@
 #!/usr/bin/env python
-import rospy
-from std_msgs.msg import String
 from pymodbus.client.sync import ModbusTcpClient
+import paho.mqtt.client as mqtt
 import json
 import time
+import signal
+import os
 
+do_exit = False
+
+def signal_handler(signum, frame):
+    global do_exit
+    do_exit = True
+    print("signal")
+    sys.exit(0)
+
+signal.signal(signal.SIGALRM, signal_handler)
+signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGTERM, signal_handler)
+
+def on_connect(client, userdata, flags, rc):
+    print("connected with res:" +str(rc))
+    client.subscribe("fbcommands")
+    client.subscribe("tablet_event")
+    client.subscribe("remote_control_event")
+
+
+def on_message(client, userdata, msg):
+    print(msg.topic + " " + str(msg.payload))
+    if msg.topic == "tablet_event":
+        callbackui(str(msg.payload))
+
+    if msg.topic == "remote_control_event":
+        callbackfb(str(msg.payload))
+
+mqtt_client = mqtt.Client()
+mqtt_client.on_connect = on_connect
+mqtt_client.on_message = on_message
+
+mqtt_client.connect("127.0.0.1")
+
+mqtt_client.loop_start()
 
 
 client = None
 brklvl = 0
 lastvel = 0
 vellevl = 0
-def callback(data):
-    pass
-    #tmp = json.loads(data.data)
-    #rospy.loginfo(rospy.get_caller_id() + "REMOTE %s",
-  #                (tmp['velocity'] * 2) + 900)
 
-    #print()
-    #client.write_register(0, tmp['breaklevel'], unit=1)
-
-    #client.write_register(1, (tmp['velocity']*2)+900, unit=1)
+def callbackfb(data_string):
+    tmp = json.loads(data_string)
+    client.write_register(0, tmp['breaklevel'], unit=1)
+    client.write_register(1, (tmp['velocity']*2)+900, unit=1)
 
 
 
 def callbackui(data):
     global brklvl
-    rospy.loginfo(rospy.get_caller_id() + "UI %s", data.data)
-    tmp = json.loads(data.data)
-    #print(tmp['event'])
+    #rospy.loginfo(rospy.get_caller_id() + "UI %s", data.data)
+    tmp = json.loads(data)
+    print(tmp['event'])
     print(tmp)
     if(tmp['event'] == 'dirch'):
         rr = client.read_coils(1,1,unit=1)
@@ -131,26 +161,25 @@ def callbackui(data):
 
 
 
-last_state_hupe = False
-def callbackfb(data):
-    global vellevl
-    rospy.loginfo(rospy.get_caller_id() + "FB %s", data.data)
-    tmp = json.loads(data.data)
-    print(tmp['velocity'])
-    client.write_register(0,int(tmp['breaklevel']), unit = 1) #WRITE BREAKLEVEL TO REISTER 0^
+#last_state_hupe = False
+#def callbackfb(data):
+#    global vellevl
+#    rospy.loginfo(rospy.get_caller_id() + "FB %s", data.data)
+#    tmp = json.loads(data.data)
+#    print(tmp['velocity'])
+#    client.write_register(0,int(tmp['breaklevel']), unit = 1) #WRITE BREAKLEVEL TO REISTER 0^
 
-    if(tmp['hupe']):
-        last_state_hupe  = tmp['hupe']
-        client.write_coil(10,True, unit=1)
-    else:
-        client.write_coil(10, False, unit=1)
-
-    a = 100-int(tmp['velocity'])
-    if a < 27 and a > 24:
-        a = 25
-    rospy.loginfo(rospy.get_caller_id() + "REMOTE %s",a)
-    client.write_register(28, (a * 2) + 900, unit=1)
-    vellevl = a*2
+#    if(tmp['hupe']):
+#        last_state_hupe  = tmp['hupe']
+#        client.write_coil(10,True, unit=1)
+#    else:
+#        client.write_coil(10, False, unit=1)#
+#    a = 100-int(tmp['velocity'])
+#    if a < 27 and a > 24:
+#        a = 25
+#    rospy.loginfo(rospy.get_caller_id() + "REMOTE %s",a)
+#    client.write_register(28, (a * 2) + 900, unit=1)
+#    vellevl = a*2
 
 
 
@@ -161,34 +190,18 @@ def callbackfb(data):
 
 if __name__ == '__main__':
     try:
-        rospy.init_node('modbusbridge', anonymous=True)
-        rospy.Subscriber("chatter", String, callback)
-        rospy.Subscriber("uimsg", String, callbackui)
-        rospy.Subscriber("fromfb", String, callbackfb)
 
-        param_rate = rospy.get_param('refresh_rate', '10')
-        param_port = rospy.get_param('modbus_port', '5020')
-        param_ip = rospy.get_param('modbus_ip', "192.168.1.17")
-
-        rate = rospy.Rate(int(param_rate)) # 10hz
-
-        client = ModbusTcpClient(param_ip, port=int(param_port))
-
-
-        pub = rospy.Publisher('state', String, queue_size=10)
-        pub_fb = rospy.Publisher('fbstate', String, queue_size=10)
+        client = ModbusTcpClient("192.168.1.17", port=int(5020))
 
         client.write_coil(6,False, unit=1)
         client.write_coil(7,False, unit=1)
 
-        while not rospy.is_shutdown():
+        while not do_exit:
             try:
                 #print(".")
                 response = client.read_input_registers(0,30,unit=1)
 
-                #print(response.registers[23])
-
-                pub.publish(json.dumps({
+                mqtt_client.publish("tablet_node",json.dumps({
                     "kompressordruck": response.registers[4] / 100.0,
                     "kmh": response.registers[3] / 100.0,
                     "kn":response.registers[15], # anzeige ist in N
@@ -217,12 +230,16 @@ if __name__ == '__main__':
                 }))
                 brklvl = response.registers[5] - 100
                 #input register 0 schreibe 0-4
-                pub_fb.publish(json.dumps({
-                    "breaklevel":response.registers[5]-100
-                }))
+                #pub_fb.publish(json.dumps({
+                #    "breaklevel":response.registers[5]-100
+                #}))
             except:
-                rospy.loginfo("modbus_error")
-            rate.sleep()
+                #rospy.loginfo("modbus_error")
+                mqtt_client.publish("tablet_status","err")
+            #rate.sleep()
 
-    except rospy.ROSInterruptException:
-        client.close()
+    except Exception as e:
+        print(e)
+        #mqtt_client.close()
+        pass
+

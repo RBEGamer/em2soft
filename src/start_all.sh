@@ -1,7 +1,8 @@
 #!bin/bash
 
-# launch all ros nodes
-bash ./ros_workspace/src/run_ros_launch.sh &
-
 #als letztes ohne &
-node ./tablet_ui_server/server.js
+node ./tablet_ui_server/server.js &
+
+# launch all ros nodes
+python ./ros_workspace/src/modbusbridge/modbusbridge.py
+

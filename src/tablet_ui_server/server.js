@@ -14,14 +14,14 @@ var config = require('./config.json');
 var uuidv1 = require('uuid/v1');
 var got = require('got');
 var mqtt = require('mqtt');
-//var client = mqtt.connect(config.mqtt_server || 'mqtt://127.0.0.1');
+var mqtt_client = mqtt.connect(config.mqtt_server || 'mqtt://127.0.0.1');
 var fs = require('fs');
 
 
 
 
-const rosnodejs = require('rosnodejs');
-const std_msgs = rosnodejs.require('std_msgs').msg;
+//const rosnodejs = require('rosnodejs');
+//const std_msgs = rosnodejs.require('std_msgs').msg;
 
 
 
@@ -71,63 +71,73 @@ var rosnode = null;
 var pub = null;
 
 
-// Register node with ROS master
-rosnodejs.initNode('/tablet_node')
-    .then((rosNode) => {
-        rosnode = rosNode;
-
-        pub = rosnode.advertise('/uimsg', std_msgs.String)
-        // Create ROS subscriber on the 'chatter' topic expecting String messages
-        let sub = rosNode.subscribe('state', std_msgs.String,
-            (data) => { // define callback execution
-              //   rosnodejs.log.info('broadcast I heard: [' + data.data + ']');
-
-                var json = data.data;
-                try {
-                    json = JSON.parse(data.data);
-                } catch (error) {
-
-                }
-
-                var ctl = 0;
-                if (json.ctlmode) {
-                    ctl = 0;
-                } else {
-                    ctl = 1;
-                }
-                io.emit('broadcast', {
-                    display: {
-                        kn: json.kn,
-                        kmh: json.kmh,
-                        kompressordruck: json.kompressordruck,
-                        breaklevel: json.breaklevel,
-                        direction: json.direction,
-                        state_v0: json.state_v0,
-                        state_v1: json.state_v1,
-                        state_v2: json.state_v2,
-                        state_v3: json.state_v3,
-                        ctlmode: ctl,
-                        asc_state: json.asc_state,
-                        fire_detcted: json.fire_detcted,
-                        temperature: json.temperature,
-                        batt_charge: json.batt_charge,
-                        light_state: json.light_state,
-                        asc_rest_dist: json.asc_rest_dist,
-                        emergencybrake: json.emergencybrake,
-                        kompressorstate: json.kompressorstate,
-                        lightstate: json.lightstate,
-                        kompressor_power_state:json.kompressor_power_state,
-                        emergencybrakereset:json.emergencybrakereset,
-                        hupe_state:json.hupe_state,
-                        storedenergy: json.storedenergy,
-                        storemode: json.storemode,
-                        vellevl: json.vellevl
-
-                    }
-                });
-            }
-        );
+mqtt_client.on('connect', function () {
+    mqtt_client.subscribe('tablet_node', function (err) {
+        if (!err) {
+            mqtt_client.publish('tablet_status', JSON.stringify({state:'ok', msg:'table_ui_server_started'}));
+        }
     });
+});
+
+mqtt_client.on('message', function (topic, message) {
+    // message is Buffer
+    if (topic !== "tablet_node"){
+        console.log("--- MSG IS NOT: tablet_node ");
+        console.log(topic);
+        console.log(message);
+        return;
+    }
+    console.log(message.toString());
+    
+    var json = message;
+    try {
+        json = JSON.parse(message);
+    } catch (error) {
+
+    }
+
+    var ctl = 0;
+    if (json.ctlmode) {
+        ctl = 0;
+    } else {
+        ctl = 1;
+    }
+    io.emit('broadcast', {
+        display: {
+            kn: json.kn,
+            kmh: json.kmh,
+            kompressordruck: json.kompressordruck,
+            breaklevel: json.breaklevel,
+            direction: json.direction,
+            state_v0: json.state_v0,
+            state_v1: json.state_v1,
+            state_v2: json.state_v2,
+            state_v3: json.state_v3,
+            ctlmode: ctl,
+            asc_state: json.asc_state,
+            fire_detcted: json.fire_detcted,
+            temperature: json.temperature,
+            batt_charge: json.batt_charge,
+            light_state: json.light_state,
+            asc_rest_dist: json.asc_rest_dist,
+            emergencybrake: json.emergencybrake,
+            kompressorstate: json.kompressorstate,
+            lightstate: json.lightstate,
+            kompressor_power_state: json.kompressor_power_state,
+            emergencybrakereset: json.emergencybrakereset,
+            hupe_state: json.hupe_state,
+            storedenergy: json.storedenergy,
+            storemode: json.storemode,
+            vellevl: json.vellevl
+
+        }
+    });
+
+});
+
+
+
+
 
 
 
@@ -159,6 +169,9 @@ app.get('/hupe', function (req, res) {
 io.on('connection', (socket) => {
     socket.on('disconnect', function () {
         console.log('user disconnected');
+        if (mqtt_client != null) {
+            mqtt_client.publish('tablet_status', JSON.stringify({ state: 'userevent', msg: 'user_connected' }));
+        }
     });
 
 
@@ -168,11 +181,8 @@ io.on('connection', (socket) => {
             _msg.state = -1;
         }
         console.log(JSON.stringify(_msg )+ ' event');
-        if (pub != null) {
-            var msg = new std_msgs.String();
-            msg.data = JSON.stringify(_msg);
-
-            pub.publish(msg);
+        if (mqtt_client != null) {       
+            mqtt_client.publish('tablet_event', JSON.stringify(_msg));
         }
     });
 
