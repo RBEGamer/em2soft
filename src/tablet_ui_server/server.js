@@ -128,7 +128,8 @@ mqtt_client.on('message', function (topic, message) {
             hupe_state: json.hupe_state,
             storedenergy: json.storedenergy,
             storemode: json.storemode,
-            vellevl: json.vellevl
+            vellevl: json.vellevl,
+            vel:json.vel
 
         }
     });
@@ -152,6 +153,11 @@ app.get('/', function (req, res) {
     });
 });
 
+app.get('/slider', function (req, res) {
+    sess = req.session;
+    res.render('index_slider.ejs', {
+    });
+});
 
 app.get('/break', function (req, res) {
     sess = req.session;
@@ -188,7 +194,6 @@ io.on('connection', (socket) => {
 
 
 });
-//TODO BUTTONS FÜR MANUELL SC_HALTEN EINBAUEN
 
 
 function RESET_ALL() {
