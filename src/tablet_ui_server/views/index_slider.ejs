@@ -193,11 +193,26 @@
 
 
         function setvel(_s){
+            console.log("setvel", _s);
             socket.emit('event', { 'event': 'velocity','state':_s });
         }
 
         function setbrk(_s){
-            socket.emit('event', { 'event': 'breaklevel','state':_s });
+            console.log("setbrk", _s);
+            if(_s == "0"){
+                socket.emit('event', { 'event': 'brkstep0' });
+            }else if(_s == "1"){
+                socket.emit('event', { 'event': 'brkstep1' });
+            }else if(_s == "2"){
+                socket.emit('event', { 'event': 'brkstep2' });
+            }if(_s == "3"){
+                socket.emit('event', { 'event': 'brkstep3' });
+            }if(_s == "4"){
+                socket.emit('event', { 'event': 'brkstep4' });
+            }else{
+                socket.emit('event', { 'event': 'brkstep4' });
+            }
+         //   socket.emit('event', { 'event': 'breaklevel','state':_s });
         }
 
         function hupe(_state){
